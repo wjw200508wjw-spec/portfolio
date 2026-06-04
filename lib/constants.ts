@@ -211,14 +211,14 @@ export const DASHBOARD_STATS = {
 //   COLORS.elevated → --bg-elevated   COLORS.border → --border-muted
 //   COLORS.accent → --accent
 export const COLORS = {
-  bg: "#141518",
-  surface: "#1a1b1e",
-  elevated: "#2c2d30",
-  border: "#4a5568",
-  textSecondary: "#718096",
-  textMuted: "#a0aec0",
-  textPrimary: "#cbd5e0",
-  textBright: "#e2e8f0",
+  bg: "#0a0c14",
+  surface: "#10121c",
+  elevated: "#181b28",
+  border: "#2a2f40",
+  textSecondary: "#6b7394",
+  textMuted: "#9da4c0",
+  textPrimary: "#c8cee8",
+  textBright: "#e4e8f8",
   accent: "#8b9a7e",
 };
 

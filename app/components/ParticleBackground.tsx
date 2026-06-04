@@ -1,11 +1,39 @@
 "use client";
 
 import { useRef, useMemo } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
-function Starfield({ count = 350 }: { count?: number }) {
+function GlowTexture() {
+  // Create a radial gradient glow sprite as a canvas texture
+  return useMemo(() => {
+    const size = 64;
+    const canvas = document.createElement("canvas");
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d")!;
+
+    const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+    gradient.addColorStop(0, "rgba(255,255,255,1)");
+    gradient.addColorStop(0.05, "rgba(220,230,255,0.9)");
+    gradient.addColorStop(0.15, "rgba(180,200,255,0.5)");
+    gradient.addColorStop(0.4, "rgba(100,140,220,0.12)");
+    gradient.addColorStop(0.7, "rgba(40,60,120,0.02)");
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, size, size);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+}
+
+function Starfield({ count = 300 }: { count?: number }) {
   const meshRef = useRef<THREE.Points>(null);
+  const twinkleRef = useRef(0);
+  const glowTexture = GlowTexture();
 
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -14,28 +42,28 @@ function Starfield({ count = 350 }: { count?: number }) {
     const sizes = new Float32Array(count);
 
     for (let i = 0; i < count; i++) {
-      // Scatter in a large sphere for space depth
+      // Scatter in a large ellipsoid for deep space feel
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      const radius = 5 + Math.random() * 12;
-      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius;
+      const radius = 4 + Math.random() * 16;
+      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius * 1.3;
       positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * radius;
       positions[i * 3 + 2] = Math.cos(phi) * radius;
 
-      // Varied star colors: white, blue-white, faint purple
-      const colorChoice = Math.random();
-      if (colorChoice < 0.6) {
-        colors[i * 3] = 0.85; colors[i * 3 + 1] = 0.9; colors[i * 3 + 2] = 1.0;
-      } else if (colorChoice < 0.85) {
-        colors[i * 3] = 0.7; colors[i * 3 + 1] = 0.75; colors[i * 3 + 2] = 0.95;
+      // Star colors: blue-white, warm white, faint purple
+      const r = Math.random();
+      if (r < 0.5) {
+        colors[i * 3] = 0.7; colors[i * 3 + 1] = 0.8; colors[i * 3 + 2] = 1.0;
+      } else if (r < 0.8) {
+        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.85; colors[i * 3 + 2] = 0.7;
       } else {
-        colors[i * 3] = 0.8; colors[i * 3 + 1] = 0.7; colors[i * 3 + 2] = 0.9;
+        colors[i * 3] = 0.75; colors[i * 3 + 1] = 0.65; colors[i * 3 + 2] = 0.95;
       }
 
-      // Varied sizes: most tiny (distant stars), some larger
-      sizes[i] = Math.random() < 0.85
-        ? Math.random() * 0.015 + 0.003
-        : Math.random() * 0.05 + 0.02;
+      // Most tiny, scattered bright dots; occasional larger glow
+      sizes[i] = Math.random() < 0.9
+        ? Math.random() * 0.06 + 0.015
+        : Math.random() * 0.18 + 0.06;
     }
 
     geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
@@ -45,19 +73,18 @@ function Starfield({ count = 350 }: { count?: number }) {
   }, [count]);
 
   const materialRef = useRef<THREE.PointsMaterial>(null);
-  const twinkleRef = useRef(0);
 
   useFrame((_, delta) => {
     if (!meshRef.current) return;
-    // Slow drift like floating through space
-    meshRef.current.rotation.y += delta * 0.025;
-    meshRef.current.rotation.x += delta * 0.012;
-    meshRef.current.rotation.z += delta * 0.006;
+    // Very slow drift
+    meshRef.current.rotation.y += delta * 0.018;
+    meshRef.current.rotation.x += delta * 0.008;
+    meshRef.current.rotation.z += delta * 0.004;
 
-    // Subtle twinkle pulsation
+    // Subtle collective twinkle
     if (materialRef.current) {
-      twinkleRef.current += delta * 0.8;
-      materialRef.current.opacity = 0.55 + Math.sin(twinkleRef.current) * 0.1;
+      twinkleRef.current += delta * 0.5;
+      materialRef.current.opacity = 0.65 + Math.sin(twinkleRef.current) * 0.12;
     }
   });
 
@@ -65,10 +92,11 @@ function Starfield({ count = 350 }: { count?: number }) {
     <points ref={meshRef} geometry={geometry}>
       <pointsMaterial
         ref={materialRef}
-        size={0.04}
+        map={glowTexture}
+        size={0.25}
         vertexColors
         transparent
-        opacity={0.55}
+        opacity={0.65}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
         sizeAttenuation={true}
@@ -86,7 +114,7 @@ export default function ParticleBackground() {
         gl={{ antialias: true, alpha: true }}
         style={{ background: "transparent" }}
       >
-        <Starfield count={350} />
+        <Starfield count={300} />
       </Canvas>
     </div>
   );
