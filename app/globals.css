@@ -42,10 +42,17 @@ body {
 }
 
 .glass {
-  background: rgba(26, 27, 30, 0.7);
+  background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(74, 85, 104, 0.3);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-muted) 30%, transparent);
+}
+
+/* Responsive section padding */
+@media (max-width: 640px) {
+  .section-container {
+    padding: 60px 16px;
+  }
 }
 
 .section-container {

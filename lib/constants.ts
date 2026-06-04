@@ -205,6 +205,11 @@ export const DASHBOARD_STATS = {
   agentUsage: 1280,
 };
 
+// JS-side color constants for programmatic use (Three.js, inline styles, ECharts).
+// Maps to CSS custom properties in globals.css:
+//   COLORS.bg → --bg-deepest    COLORS.surface → --bg-surface
+//   COLORS.elevated → --bg-elevated   COLORS.border → --border-muted
+//   COLORS.accent → --accent
 export const COLORS = {
   bg: "#141518",
   surface: "#1a1b1e",
