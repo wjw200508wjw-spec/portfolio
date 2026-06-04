@@ -5,8 +5,9 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { MotionValue, useMotionValueEvent } from "framer-motion";
 import * as THREE from "three";
 
-const PARTICLE_SIZE = 0.04;
+const PARTICLE_SIZE = 0.06;
 const CANVAS_W = 512;
+const SAMPLE_STEP = 3;
 
 function sampleTextPixels(): Float32Array | null {
   if (typeof document === "undefined") return null;
@@ -48,10 +49,8 @@ function sampleTextPixels(): Float32Array | null {
   // Sample
   const imageData = ctx.getImageData(0, 0, CANVAS_W, h);
   const pixels: number[] = [];
-  const step = 2;
-
-  for (let y = 0; y < h; y += step) {
-    for (let x = 0; x < CANVAS_W; x += step) {
+  for (let y = 0; y < h; y += SAMPLE_STEP) {
+    for (let x = 0; x < CANVAS_W; x += SAMPLE_STEP) {
       const idx = (y * CANVAS_W + x) * 4;
       if (imageData.data[idx + 3] > 100) {
         const px = (x / CANVAS_W - 0.5) * 12;
@@ -123,7 +122,7 @@ function ParticleText({ scrollProgress }: { scrollProgress: MotionValue<number> 
     timer.current += delta;
 
     if (phase.current === "assembling") {
-      const t = Math.max(0, Math.min(1, (timer.current - 0.5) / 2.0));
+      const t = Math.max(0, Math.min(1, (timer.current - 0.2) / 1.5));
       for (let i = 0; i < count; i++) {
         const i3 = i * 3;
         curPos[i3] = scatterPos[i3] + (textPos[i3] - scatterPos[i3]) * t;
