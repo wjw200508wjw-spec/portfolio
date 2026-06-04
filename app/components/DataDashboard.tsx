@@ -56,16 +56,10 @@ export default function DataDashboard() {
             label: { fontSize: 16, fontWeight: "bold" },
           },
           data: [
-            { value: DASHBOARD_STATS.projects, name: "Projects" },
-            { value: DASHBOARD_STATS.blogPosts, name: "Blog Posts" },
-            {
-              value: Math.floor(DASHBOARD_STATS.githubCommits / 10),
-              name: "Commits (×10)",
-            },
-            {
-              value: Math.floor(DASHBOARD_STATS.agentUsage / 100),
-              name: "Agent Usage (×100)",
-            },
+            { value: DASHBOARD_STATS.projects, name: "项目" },
+            { value: DASHBOARD_STATS.blogPosts, name: "博客文章" },
+            { value: DASHBOARD_STATS.githubCommits, name: "GitHub 提交" },
+            { value: DASHBOARD_STATS.githubRepos, name: "GitHub 仓库" },
           ],
         },
       ],
@@ -98,8 +92,8 @@ export default function DataDashboard() {
           { label: "博客文章", value: DASHBOARD_STATS.blogPosts },
           { label: "GitHub 提交", value: DASHBOARD_STATS.githubCommits },
           {
-            label: "Agent 调用",
-            value: DASHBOARD_STATS.agentUsage.toLocaleString(),
+            label: "GitHub 仓库",
+            value: DASHBOARD_STATS.githubRepos,
           },
         ].map((stat, i) => (
           <motion.div

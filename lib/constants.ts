@@ -8,7 +8,7 @@ export const SITE = {
   tagline: "构建企业级数据平台与智能 Agent 系统",
   email: "2924539178@qq.com",
   phone: "18692174538",
-  github: "https://github.com",
+  github: "https://github.com/wjw200508wjw-spec",
   linkedin: "https://linkedin.com",
   location: "China",
   education: {
@@ -199,8 +199,8 @@ export const BLOG_POSTS: BlogPost[] = [
 export const DASHBOARD_STATS = {
   projects: 3,
   blogPosts: BLOG_POSTS.length,
-  githubCommits: 247,
-  agentUsage: 1280,
+  githubCommits: 2,
+  githubRepos: 1,
 };
 
 // JS-side color constants for programmatic use (Three.js, inline styles, ECharts).
