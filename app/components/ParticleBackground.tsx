@@ -4,9 +4,8 @@ import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-const PARTICLE_COUNT = 600;
-const MAX_RADIUS = 14;
-const SPAWN_RATE = 0.6; // particles per second regenerated
+const PARTICLE_COUNT = 500;
+const MAX_RADIUS = 16;
 
 function GlowSprite() {
   return useMemo(() => {
@@ -18,10 +17,11 @@ function GlowSprite() {
 
     const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     gradient.addColorStop(0, "rgba(255,255,255,1)");
-    gradient.addColorStop(0.03, "rgba(255,255,255,0.9)");
-    gradient.addColorStop(0.1, "rgba(220,235,255,0.5)");
-    gradient.addColorStop(0.25, "rgba(150,190,240,0.15)");
-    gradient.addColorStop(0.5, "rgba(60,100,160,0.03)");
+    gradient.addColorStop(0.02, "rgba(255,255,255,0.95)");
+    gradient.addColorStop(0.08, "rgba(230,240,255,0.55)");
+    gradient.addColorStop(0.2, "rgba(160,200,240,0.18)");
+    gradient.addColorStop(0.4, "rgba(80,130,200,0.04)");
+    gradient.addColorStop(0.7, "rgba(20,50,100,0.005)");
     gradient.addColorStop(1, "rgba(0,0,0,0)");
 
     ctx.fillStyle = gradient;
@@ -33,48 +33,44 @@ function GlowSprite() {
   }, []);
 }
 
-function ExpandingField() {
+function DriftField() {
   const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.PointsMaterial>(null);
   const glowTexture = GlowSprite();
 
-  // Each particle: [x, y, z, vx, vy, vz, life, maxLife, baseSize]
+  // Per particle: x, y, z, vx, vy, vz, life, maxLife, baseSize
   const particleData = useRef(new Float32Array(PARTICLE_COUNT * 9));
-  const spawnTimer = useRef(0);
 
-  // Initialize all particles
   useMemo(() => {
     const d = particleData.current;
     for (let i = 0; i < PARTICLE_COUNT; i++) {
-      resetParticle(d, i, true);
+      initParticle(d, i, Math.random());
     }
   }, []);
 
-  function resetParticle(d: Float32Array, i: number, randomLife: boolean) {
+  function initParticle(d: Float32Array, i: number, lifeOffset: number) {
     const idx = i * 9;
-    // Random direction on unit sphere
     const theta = Math.random() * Math.PI * 2;
     const phi = Math.acos(2 * Math.random() - 1);
     const dirX = Math.sin(phi) * Math.cos(theta);
     const dirY = Math.sin(phi) * Math.sin(theta);
     const dirZ = Math.cos(phi);
 
-    // Start near center
-    const startRadius = 0.1 + Math.random() * 0.5;
-    d[idx] = dirX * startRadius;
-    d[idx + 1] = dirY * startRadius;
-    d[idx + 2] = dirZ * startRadius;
+    // Start anywhere along the radius
+    const startR = 0.3 + Math.random() * MAX_RADIUS;
+    d[idx] = dirX * startR;
+    d[idx + 1] = dirY * startR;
+    d[idx + 2] = dirZ * startR;
 
-    // Velocity: outward, varied speeds
-    const speed = 0.3 + Math.random() * 2.0;
+    // Very slow outward drift — feels like receding into space
+    const speed = 0.04 + Math.random() * 0.25;
     d[idx + 3] = dirX * speed;
     d[idx + 4] = dirY * speed;
     d[idx + 5] = dirZ * speed;
 
-    // Life tracking
-    d[idx + 6] = randomLife ? Math.random() * 10 : 0;
-    d[idx + 7] = 8 + Math.random() * 12; // max life
-    d[idx + 8] = 0.01 + Math.random() * 0.06; // base size
+    d[idx + 6] = lifeOffset * (18 + Math.random() * 25); // random life phase
+    d[idx + 7] = 18 + Math.random() * 25;               // max life
+    d[idx + 8] = 0.015 + Math.random() * 0.07;          // base size
   }
 
   const positionsRef = useRef(new Float32Array(PARTICLE_COUNT * 3));
@@ -87,7 +83,8 @@ function ExpandingField() {
     const col = colorsRef.current;
     const siz = sizesRef.current;
 
-    spawnTimer.current += delta;
+    // Clamp delta to avoid jumps on tab switch
+    const dt = Math.min(delta, 0.1);
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const idx = i * 9;
@@ -97,37 +94,36 @@ function ExpandingField() {
       const vx = d[idx + 3];
       const vy = d[idx + 4];
       const vz = d[idx + 5];
-      let life = d[idx + 6] + delta;
+      let life = d[idx + 6] + dt;
       const maxLife = d[idx + 7];
       const baseSize = d[idx + 8];
 
-      // Move outward
-      x += vx * delta;
-      y += vy * delta;
-      z += vz * delta;
-
+      // Slow outward movement
+      x += vx * dt;
+      y += vy * dt;
+      z += vz * dt;
       let dist = Math.sqrt(x * x + y * y + z * z);
 
-      // Reset if too far or too old
+      // When particle drifts too far, respawn near center
       if (dist > MAX_RADIUS || life > maxLife) {
-        // Spawn new particle at center
         const theta2 = Math.random() * Math.PI * 2;
         const phi2 = Math.acos(2 * Math.random() - 1);
         const ndx = Math.sin(phi2) * Math.cos(theta2);
         const ndy = Math.sin(phi2) * Math.sin(theta2);
         const ndz = Math.cos(phi2);
-        const nSpeed = 0.3 + Math.random() * 2.0;
+        const nSpeed = 0.04 + Math.random() * 0.25;
 
-        x = ndx * (0.05 + Math.random() * 0.3);
-        y = ndy * (0.05 + Math.random() * 0.3);
-        z = ndz * (0.05 + Math.random() * 0.3);
+        const spawnR = 0.1 + Math.random() * 0.6;
+        x = ndx * spawnR;
+        y = ndy * spawnR;
+        z = ndz * spawnR;
         d[idx + 3] = ndx * nSpeed;
         d[idx + 4] = ndy * nSpeed;
         d[idx + 5] = ndz * nSpeed;
-        d[idx + 7] = 8 + Math.random() * 12;
-        d[idx + 8] = 0.01 + Math.random() * 0.06;
+        d[idx + 7] = 18 + Math.random() * 25;
+        d[idx + 8] = 0.015 + Math.random() * 0.07;
         life = 0;
-        dist = 0.1;
+        dist = spawnR;
       }
 
       d[idx] = x;
@@ -139,36 +135,33 @@ function ExpandingField() {
       pos[i * 3 + 1] = y;
       pos[i * 3 + 2] = z;
 
-      // Life-based fade: bright at birth, fade with age
-      const lifeRatio = Math.min(life / maxLife, 1);
-      const fadeIn = Math.min(life / 0.8, 1); // quick fade in
-      const fadeOut = 1 - Math.max(0, (lifeRatio - 0.5) * 2); // fade out in second half
+      // Distance-based size: larger when close, tiny when far
+      const distRatio = dist / MAX_RADIUS;
+      const nearBoost = 1 + (1 - distRatio) * 3.0; // up to 4x bigger near center
+      const lifeRatio = life / maxLife;
+      const fadeIn = Math.min(life / 1.5, 1);
+      const fadeOut = 1 - Math.max(0, (lifeRatio - 0.6) * 2.5);
       const alpha = fadeIn * fadeOut;
 
-      // Color: warm near center, cool far away
-      const distRatio = Math.min(dist / MAX_RADIUS, 1);
-      col[i * 3] = 0.7 + 0.3 * (1 - distRatio);       // R
-      col[i * 3 + 1] = 0.75 + 0.25 * (1 - distRatio);  // G
-      col[i * 3 + 2] = 0.85 + 0.15 * distRatio;        // B (more blue far)
+      siz[i] = baseSize * nearBoost * alpha;
 
-      siz[i] = baseSize * alpha;
+      // Warm white near, cool blue far
+      col[i * 3] = 0.85 + 0.15 * (1 - distRatio);
+      col[i * 3 + 1] = 0.85 + 0.15 * (1 - distRatio * 0.5);
+      col[i * 3 + 2] = 0.75 + 0.25 * distRatio;
     }
 
-    // Update buffers
     if (pointsRef.current) {
-      const geo = pointsRef.current.geometry;
-      geo.attributes.position.needsUpdate = true;
-      geo.attributes.color.needsUpdate = true;
-      geo.attributes.size.needsUpdate = true;
+      pointsRef.current.geometry.attributes.position.needsUpdate = true;
+      pointsRef.current.geometry.attributes.color.needsUpdate = true;
+      pointsRef.current.geometry.attributes.size.needsUpdate = true;
     }
 
-    // Subtle global twinkle
     if (materialRef.current) {
-      materialRef.current.opacity = 0.55 + Math.sin(performance.now() * 0.0005) * 0.08;
+      materialRef.current.opacity = 0.5 + Math.sin(performance.now() * 0.0003) * 0.06;
     }
   });
 
-  // Create initial buffers
   const geo = useMemo(() => {
     const g = new THREE.BufferGeometry();
     g.setAttribute("position", new THREE.BufferAttribute(positionsRef.current, 3));
@@ -182,10 +175,10 @@ function ExpandingField() {
       <pointsMaterial
         ref={materialRef}
         map={glowTexture}
-        size={0.25}
+        size={0.22}
         vertexColors
         transparent
-        opacity={0.55}
+        opacity={0.5}
         blending={THREE.AdditiveBlending}
         depthWrite={false}
         sizeAttenuation={true}
@@ -206,7 +199,7 @@ export default function ParticleBackground() {
           gl.setClearColor(0x000000, 0);
         }}
       >
-        <ExpandingField />
+        <DriftField />
       </Canvas>
     </div>
   );
