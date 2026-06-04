@@ -146,17 +146,14 @@ function DataTitle3D() {
 
   if (!geometry) return null;
 
-  // Center the geometry
-  geometry.computeBoundingBox();
-  const box = geometry.boundingBox!;
-  const centerX = -(box.max.x - box.min.x) / 2 - box.min.x;
-  const centerY = -(box.max.y - box.min.y) / 2 - box.min.y;
+  // Center geometry properly
+  geometry.center();
 
   return (
-    <group ref={groupRef} position={[centerX, centerY, 0]}>
+    <group ref={groupRef}>
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          color="#d0d4dc"
+          color="#ffffff"
           roughness={0.35}
           metalness={0.05}
           transparent
