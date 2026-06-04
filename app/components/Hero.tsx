@@ -1,12 +1,19 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { SITE } from "@/lib/constants";
 import HeroCanvas from "./HeroCanvas";
+import gsap from "gsap";
 
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const nameRef = useRef<HTMLParagraphElement>(null);
+  const taglineRef = useRef<HTMLParagraphElement>(null);
+  const ctasRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -14,6 +21,49 @@ export default function Hero() {
 
   const particlesOpacity = useTransform(scrollYProgress, [0, 0.7], [0.5, 0]);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
+
+  // GSAP entrance animation
+  useEffect(() => {
+    const tl = gsap.timeline();
+
+    // Phase 1: Name + Tagline + CTAs appear (0-1s)
+    tl.fromTo(
+      nameRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+    );
+    tl.fromTo(
+      taglineRef.current,
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      "-=0.3"
+    );
+    tl.fromTo(
+      ctasRef.current,
+      { opacity: 0, y: 15 },
+      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
+      "-=0.3"
+    );
+
+    // At 1.0s: slide content down (same time as Data rotation starts)
+    tl.to(contentRef.current, {
+      y: 300,
+      duration: 4,
+      ease: "power2.inOut",
+    }, "1.0");
+
+    // Scroll indicator at ~5s
+    tl.fromTo(
+      scrollRef.current,
+      { opacity: 0 },
+      { opacity: 1, duration: 0.5 },
+      "4.5"
+    );
+
+    return () => {
+      tl.kill();
+    };
+  }, []);
 
   return (
     <section
@@ -26,38 +76,30 @@ export default function Hero() {
         <HeroCanvas />
       </motion.div>
 
-      {/* Name + Tagline + CTAs — appear first, then slide down */}
+      {/* Name + Tagline + CTAs */}
       <motion.div
-        className="relative z-10 text-center px-6"
-        initial={{ y: 0 }}
-        animate={{ y: [0, 0, 300] }}
-        transition={{ duration: 5, times: [0, 0.2, 1], ease: "easeInOut" }}
+        className="relative z-10"
         style={{ opacity: contentOpacity }}
       >
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.0 }}
+      <div
+        ref={contentRef}
+        className="text-center px-6"
+      >
+        <p
+          ref={nameRef}
           className="text-3xl md:text-4xl font-semibold text-white"
         >
           {SITE.name}
-        </motion.p>
+        </p>
 
-        <motion.p
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
+        <p
+          ref={taglineRef}
           className="text-base md:text-lg text-white/70 mt-3"
         >
           {SITE.tagline}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="flex items-center justify-center gap-4 mt-8"
-        >
+        <div ref={ctasRef} className="flex items-center justify-center gap-4 mt-8">
           <button
             onClick={() =>
               document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })
@@ -73,14 +115,13 @@ export default function Hero() {
           >
             下载简历
           </a>
-        </motion.div>
+        </div>
+      </div>
       </motion.div>
 
       {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 5.0 }}
+      <div
+        ref={scrollRef}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       >
         <span className="text-xs text-white/50 tracking-[0.3em]">向下滚动</span>
@@ -89,7 +130,7 @@ export default function Hero() {
           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
           className="w-5 h-5 border-r-2 border-b-2 border-white/50 rotate-45"
         />
-      </motion.div>
+      </div>
     </section>
   );
 }
