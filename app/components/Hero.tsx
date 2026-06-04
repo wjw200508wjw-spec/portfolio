@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValueEvent, useAnimate } from "framer-motion";
 import { SITE } from "@/lib/constants";
 import HeroCanvas from "./HeroCanvas";
 
@@ -12,8 +12,8 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
   const particlesOpacity = useTransform(scrollYProgress, [0, 0.7], [0.5, 0]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
 
   return (
     <section
@@ -21,45 +21,48 @@ export default function Hero() {
       ref={containerRef}
       className="relative h-screen w-full flex items-center justify-center overflow-hidden"
     >
-      {/* Three.js: 3D "Data" title + particles */}
+      {/* Three.js particles */}
       <motion.div style={{ opacity: particlesOpacity }} className="absolute inset-0">
         <HeroCanvas />
       </motion.div>
 
-      {/* Text overlay below the 3D title */}
+      {/* ====== Phase 1: Name + Tagline + CTAs (0-1s, center) ====== */}
       <motion.div
+        className="relative z-10 text-center px-6"
+        animate={{
+          // Phase 2: slide down to make room for Data (1s-2.5s)
+          y: [0, 0, 180],
+        }}
+        transition={{
+          duration: 3,
+          times: [0, 0.33, 1],
+          ease: "easeInOut",
+        }}
         style={{ opacity: contentOpacity }}
-        className="relative z-10 text-center px-6 w-full max-w-[90vw]"
       >
-        {/* Spacer so text sits below the 3D title */}
-        <div className="h-[35vh]" />
-
-        {/* Name */}
         <motion.p
-          initial={{ y: 40, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.2, ease: [0.16, 1, 0.3, 1] }}
-          className="text-xl md:text-2xl font-medium text-text-muted mt-6 md:mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.0 }}
+          className="text-3xl md:text-4xl font-semibold text-text-bright"
         >
           {SITE.name}
         </motion.p>
 
-        {/* Tagline */}
         <motion.p
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.4, ease: [0.16, 1, 0.3, 1] }}
-          className="text-base md:text-lg text-text-secondary mt-3 max-w-xl mx-auto"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-base md:text-lg text-text-secondary mt-3"
         >
           {SITE.tagline}
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
-          initial={{ y: 30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.8, delay: 2.6, ease: [0.16, 1, 0.3, 1] }}
-          className="flex items-center justify-center gap-4 mt-10 md:mt-12"
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="flex items-center justify-center gap-4 mt-8"
         >
           <button
             onClick={() =>
@@ -79,12 +82,68 @@ export default function Hero() {
         </motion.div>
       </motion.div>
 
+      {/* ====== Phase 2: 3D "Data" — side entrance, uniform rotation, fills screen ====== */}
+      <motion.div
+        className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.01, delay: 1.0 }}
+        style={{ perspective: "1200px" }}
+      >
+        <motion.h1
+          initial={{
+            rotateY: 85,
+            scale: 1.8,
+            opacity: 0,
+          }}
+          animate={{
+            rotateY: 0,
+            scale: 1,
+            opacity: [0, 1, 1, 0.5],
+          }}
+          transition={{
+            duration: 3.5,
+            times: [0, 0.08, 0.7, 1],
+            ease: "linear",
+            delay: 1.0,
+          }}
+          style={{
+            transformStyle: "preserve-3d",
+            perspective: "1200px",
+          }}
+          className="text-[clamp(5rem,18vw,18rem)] font-black text-white tracking-[-0.05em] leading-[0.8] select-none"
+        >
+          {/* Faux-3D extrusion via layered text-shadows */}
+          <span
+            style={{
+              textShadow: [
+                "0 1px 0 #ccc",
+                "0 2px 0 #bbb",
+                "0 3px 0 #aaa",
+                "0 4px 0 #999",
+                "0 5px 0 #888",
+                "0 6px 0 #777",
+                "0 7px 0 #666",
+                "0 8px 0 #555",
+                "0 10px 10px rgba(0,0,0,0.5)",
+                "0 15px 20px rgba(0,0,0,0.3)",
+                "0 25px 40px rgba(0,0,0,0.2)",
+                "-2px 0 0 rgba(255,255,255,0.1)",
+                "-4px 0 0 rgba(255,255,255,0.05)",
+              ].join(", "),
+            }}
+          >
+            Data
+          </span>
+        </motion.h1>
+      </motion.div>
+
       {/* Scroll indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 3.0 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        transition={{ delay: 3.5 }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
       >
         <span className="text-xs text-text-secondary tracking-[0.3em]">向下滚动</span>
         <motion.div
