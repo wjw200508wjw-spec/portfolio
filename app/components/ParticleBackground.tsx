@@ -188,7 +188,10 @@ export default function ParticleBackground() {
         camera={{ position: [0, 0, 0], fov: 55 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
-        style={{ background: "transparent" }}
+        style={{ background: "#000000" }}
+        onCreated={({ gl }) => {
+          gl.setClearColor(0x000000, 0);
+        }}
       >
         <CelestialField />
       </Canvas>
