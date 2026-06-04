@@ -38,7 +38,7 @@ export const SITE = {
 export const NAV_ITEMS: NavItem[] = [
   { label: "关于", href: "#about" },
   { label: "项目", href: "#projects" },
-  { label: "AI实验室", href: "#ai-lab" },
+
   { label: "博客", href: "#blog" },
   { label: "数据面板", href: "#dashboard" },
   { label: "联系", href: "#contact" },
@@ -233,7 +233,7 @@ export const SECTION_IDS = [
   "hero",
   "about",
   "projects",
-  "ai-lab",
+
   "blog",
   "dashboard",
   "contact",

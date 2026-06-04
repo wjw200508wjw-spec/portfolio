@@ -3,7 +3,7 @@ import SideIndicator from "./components/SideIndicator";
 import Hero from "./components/Hero";
 import About from "./components/About";
 import Projects from "./components/Projects";
-import AILab from "./components/AILab";
+
 import Blog from "./components/Blog";
 import DataDashboard from "./components/DataDashboard";
 import Contact from "./components/Contact";
@@ -25,7 +25,7 @@ export default function Home() {
         <Hero />
         <About />
         <Projects />
-        <AILab />
+
         <Blog />
         <DataDashboard />
         <Contact />
