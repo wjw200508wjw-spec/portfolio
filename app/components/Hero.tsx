@@ -46,9 +46,9 @@ export default function Hero() {
       0.8
     );
 
-    // After 1.8s: slide content down as Data rotates toward front
+    // After 1.8s: slide content down slightly as Data rotates toward front
     tl.to(contentRef.current, {
-      y: 300,
+      y: 200,
       duration: 4.2,
       ease: "power2.inOut",
     }, 1.8);

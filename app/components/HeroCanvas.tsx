@@ -150,10 +150,10 @@ function DataTitle3D() {
   geometry.center();
 
   return (
-    <group ref={groupRef}>
+    <group ref={groupRef} position={[0, 1.0, 0]}>
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          color="#ffffff"
+          color="#e8e8e8"
           roughness={0.35}
           metalness={0.05}
           transparent
