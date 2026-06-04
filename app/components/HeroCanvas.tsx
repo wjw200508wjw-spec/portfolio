@@ -82,10 +82,7 @@ function DataTitle3D() {
     if (!font || !groupRef.current || startedRef.current) return;
     startedRef.current = true;
 
-    groupRef.current.rotation.y = Math.PI * 0.44; // ~80°
-    groupRef.current.scale.set(1.8, 1.8, 1.8);
-
-    // Start rotating immediately — 6s slow uniform rotation
+    // Rotation + scale already set via ref callback — just start the tween
     const tl = gsap.timeline({ onComplete: () => {
       entranceDoneRef.current = true;
     }});
@@ -132,7 +129,7 @@ function DataTitle3D() {
   // Create geometry from loaded font
   const geometry = useMemo(() => {
     if (!font) return null;
-    return new TextGeometry("Data", {
+    return new TextGeometry("DATA", {
       font,
       size: 2.8,
       depth: 0.6,       // Wide extrusion for visible 3D thickness
@@ -149,8 +146,17 @@ function DataTitle3D() {
   // Center geometry properly
   geometry.center();
 
+  // Set initial rotation before first paint to prevent flash
+  const setGroupRef = (el: THREE.Group | null) => {
+    groupRef.current = el;
+    if (el && !startedRef.current) {
+      el.rotation.y = Math.PI * 0.44;
+      el.scale.set(1.8, 1.8, 1.8);
+    }
+  };
+
   return (
-    <group ref={groupRef} position={[0, 1.0, 0]}>
+    <group ref={setGroupRef} position={[0, 1.0, 0]}>
       <mesh geometry={geometry}>
         <meshStandardMaterial
           color="#e8e8e8"
