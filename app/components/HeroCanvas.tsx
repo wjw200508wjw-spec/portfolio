@@ -67,6 +67,7 @@ function DataTitle3D() {
   const scrollRef = useRef(0);
   const [font, setFont] = useState<any>(null);
   const startedRef = useRef(false);
+  const entranceDoneRef = useRef(false);
 
   // Load font
   useEffect(() => {
@@ -82,25 +83,24 @@ function DataTitle3D() {
     startedRef.current = true;
 
     groupRef.current.rotation.y = Math.PI * 0.44; // ~80°
-    groupRef.current.scale.set(1.8, 1.8, 1.8);    // start large
+    groupRef.current.scale.set(1.8, 1.8, 1.8);
 
-    gsap.to(groupRef.current.rotation, {
+    const tl = gsap.timeline({ delay: 1.8, onComplete: () => {
+      entranceDoneRef.current = true;
+    }});
+    tl.to(groupRef.current.rotation, {
       y: 0,
       duration: 4.0,
       ease: "none",
-      delay: 1.8,
-    });
-    gsap.to(groupRef.current.scale, {
-      x: 1,
-      y: 1,
-      z: 1,
+    }, 0);
+    tl.to(groupRef.current.scale, {
+      x: 1, y: 1, z: 1,
       duration: 4.0,
       ease: "none",
-      delay: 1.8,
-    });
+    }, 0);
   }, [font]);
 
-  // Scroll-driven rotation reverse + fade
+  // Scroll-driven rotation reverse + fade (only after entrance completes)
   useEffect(() => {
     const handleScroll = () => {
       scrollRef.current = Math.min(window.scrollY / (window.innerHeight * 0.8), 1);
@@ -111,12 +111,12 @@ function DataTitle3D() {
 
   useFrame(() => {
     if (!groupRef.current) return;
+    if (!entranceDoneRef.current) return; // Don't interfere with GSAP entrance
+
     const s = scrollRef.current;
-    // Blend toward scroll-driven rotation
     const targetRY = s * 0.8;
     groupRef.current.rotation.y += (targetRY - groupRef.current.rotation.y) * 0.04;
 
-    // Fade children
     const targetOpacity = 1 - s * 1.3;
     groupRef.current.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
