@@ -30,9 +30,9 @@ export const SITE = {
       "参与OCR手写病历识别流程及JSON解析、字段提取、清洗与映射",
     ],
   },
-  aboutIntro: `专注数据平台建设、数据仓库开发以及企业级AI Agent应用开发。
+  aboutIntro: `专注数据平台建设、数据仓库开发。
 熟悉企业级数据平台架构设计、多源异构数据库同步、OCR文档处理以及多Agent协同系统构建。
-目前重点关注 Data Engineering、AI Agent、RAG、Multi-Agent Collaboration 及 Enterprise AI Applications。`,
+目前重点关注 Data Engineering、AI Agent 及 RAG。`,
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -53,17 +53,13 @@ export const SKILLS: Skill[] = [
   { name: "SQL Server", category: "database", level: 70 },
   { name: "Kingbase", category: "database", level: 60 },
   { name: "Hive", category: "bigdata", level: 75 },
-  { name: "Spark", category: "bigdata", level: 65 },
-  { name: "Flink CDC", category: "bigdata", level: 80 },
-  { name: "Kafka", category: "bigdata", level: 70 },
+  { name: "Spark", category: "bigdata", level: 50 },
+  { name: "Flink CDC", category: "bigdata", level: 70 },
+  { name: "Kafka", category: "bigdata", level: 40 },
   { name: "DataX", category: "sync", level: 80 },
   { name: "Kettle", category: "sync", level: 65 },
   { name: "DolphinScheduler", category: "platform", level: 80 },
   { name: "Dinky", category: "platform", level: 70 },
-  { name: "LangChain", category: "ai", level: 70 },
-  { name: "LangGraph", category: "ai", level: 65 },
-  { name: "OpenAI API", category: "ai", level: 75 },
-  { name: "FastAPI", category: "backend", level: 70 },
 ];
 
 export const PROJECTS: Project[] = [

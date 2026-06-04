@@ -10,8 +10,6 @@ const categoryLabels: Record<string, string> = {
   bigdata: "大数据",
   sync: "数据同步",
   platform: "平台工具",
-  ai: "AI & Agents",
-  backend: "后端",
 };
 
 export default function About() {
