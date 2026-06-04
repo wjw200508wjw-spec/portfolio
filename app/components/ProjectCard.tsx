@@ -21,7 +21,7 @@ export default function ProjectCard({
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.15 }}
       whileHover={{ y: -6, borderColor: "var(--text-muted)", boxShadow: "0 6px 30px rgba(0,0,0,0.25)" }}
-      className="bg-bg-surface border border-bg-elevated rounded-2xl overflow-hidden transition-all duration-300"
+      className="bg-bg-surface border border-bg-elevated rounded-2xl overflow-hidden transition-all duration-150"
     >
       <button
         onClick={() => setExpanded(!expanded)}
