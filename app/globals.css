@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --bg-deepest: #050508;
-  --bg-surface: #0d0e13;
-  --bg-elevated: #161820;
+  --bg-deepest: #000000;
+  --bg-surface: #0a0a0a;
+  --bg-elevated: #141414;
   --border-muted: #262830;
   --text-secondary: #6b6e78;
   --text-muted: #9a9ea8;

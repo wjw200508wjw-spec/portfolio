@@ -211,9 +211,9 @@ export const DASHBOARD_STATS = {
 //   COLORS.elevated → --bg-elevated   COLORS.border → --border-muted
 //   COLORS.accent → --accent
 export const COLORS = {
-  bg: "#050508",
-  surface: "#0d0e13",
-  elevated: "#161820",
+  bg: "#000000",
+  surface: "#0a0a0a",
+  elevated: "#141414",
   border: "#262830",
   textSecondary: "#6b6e78",
   textMuted: "#9a9ea8",
