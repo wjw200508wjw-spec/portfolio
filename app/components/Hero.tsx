@@ -6,40 +6,6 @@ import { SITE } from "@/lib/constants";
 import HeroCanvas from "./HeroCanvas";
 import gsap from "gsap";
 
-// Single cute eye — sits in the A gap, tracks mouse
-function Eye() {
-  const pupilRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleMouse = (e: MouseEvent) => {
-      if (!pupilRef.current) return;
-      const mx = (e.clientX / window.innerWidth) * 2 - 1;
-      const my = (e.clientY / window.innerHeight) * 2 - 1;
-      const dx = Math.max(-2.5, Math.min(2.5, mx * 3));
-      const dy = Math.max(-2.5, Math.min(2.5, my * 3));
-      pupilRef.current.style.transform = `translate(${dx}px, ${dy}px)`;
-    };
-    window.addEventListener("mousemove", handleMouse);
-    return () => window.removeEventListener("mousemove", handleMouse);
-  }, []);
-
-  return (
-    <span className="inline-flex items-center justify-center"
-      style={{ width: "40%", height: "40%", position: "absolute", left: "30%", top: "32%" }}>
-      {/* Eyeball */}
-      <span className="inline-block rounded-[50%] bg-white relative"
-        style={{ width: "100%", height: "100%", boxShadow: "0 0 0 1.5px #222" }}>
-        {/* Pupil */}
-        <span ref={pupilRef}
-          className="absolute rounded-[50%] bg-black"
-          style={{ width: "40%", height: "40%", left: "30%", top: "30%", transition: "transform 0.06s ease-out" }} />
-        {/* Shine */}
-        <span className="absolute rounded-[50%] bg-white" style={{ width: "20%", height: "20%", right: "20%", top: "20%" }} />
-      </span>
-    </span>
-  );
-}
-
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const nameRef = useRef<HTMLParagraphElement>(null);
@@ -86,17 +52,7 @@ export default function Hero() {
             textShadow: "0 2px 0 #ddd, 0 4px 0 #ccc, 0 6px 12px rgba(0,0,0,0.3)",
           }}
         >
-          {"DATA".split("").map((char, i) => {
-            if (char === "A") {
-              return (
-                <span key={i} className="relative inline-block">
-                  {char}
-                  <Eye />
-                </span>
-              );
-            }
-            return <span key={i}>{char}</span>;
-          })}
+          DATA
         </h1>
 
         {/* Name */}
