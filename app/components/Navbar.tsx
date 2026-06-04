@@ -57,10 +57,10 @@ export default function Navbar() {
                 <button
                   key={item.href}
                   onClick={() => scrollTo(item.href)}
-                  className={`px-5 py-2.5 text-[0.9rem] rounded-full transition-all duration-150 ${
+                  className={`px-5 py-2.5 text-[0.9rem] rounded-full transition-colors ${
                     activeSection === item.href.slice(1)
-                      ? "text-text-bright bg-bg-elevated scale-105"
-                      : "text-text-secondary hover:text-text-primary hover:scale-105"
+                      ? "text-text-bright bg-bg-elevated"
+                      : "text-text-secondary hover:text-text-primary"
                   }`}
                 >
                   {item.label}

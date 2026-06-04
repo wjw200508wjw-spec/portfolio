@@ -10,8 +10,15 @@ export default function TechCard({ skill }: { skill: Skill }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4 }}
-      whileHover={{ y: -8, scale: 1.03, backgroundColor: "var(--bg-elevated)", borderColor: "var(--text-muted)" }}
-      className="bg-bg-surface border border-bg-elevated rounded-xl p-5 transition-all duration-150"
+      whileHover={{
+        y: -8,
+        scale: 1.03,
+        backgroundColor: "var(--bg-elevated)",
+        borderColor: "var(--text-muted)",
+        transition: { duration: 0.12 },
+      }}
+      className="bg-bg-surface border border-bg-elevated rounded-xl p-5"
+      style={{ willChange: "transform" }}
     >
       <h4 className="text-text-primary font-semibold text-sm mb-3">{skill.name}</h4>
       <div className="h-1 bg-bg-elevated rounded-full overflow-hidden">
