@@ -28,9 +28,9 @@ export default function Blog() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">博客</h2>
+        <h2 className="section-title">技能图谱</h2>
         <p className="section-subtitle">
-          数据工程、AI Agent 与技术思考
+          技术能力与知识体系沉淀
         </p>
       </motion.div>
 
