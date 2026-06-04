@@ -14,7 +14,6 @@ export default function AgentCard({ agent, index }: { agent: AgentTool; index: n
       className="bg-bg-surface border border-bg-elevated rounded-2xl p-8 group"
       style={{ willChange: "transform" }}
     >
-      <div className="text-4xl mb-4">{agent.icon}</div>
       <h3 className="text-lg font-bold text-text-primary mb-2">{agent.name}</h3>
       <p className="text-text-secondary text-sm leading-relaxed mb-4">
         {agent.description}
