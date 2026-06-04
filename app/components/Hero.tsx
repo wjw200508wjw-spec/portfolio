@@ -43,7 +43,7 @@ export default function Hero() {
 
       {/* Content: text + buttons */}
       <motion.div ref={contentRef} className="relative z-10 text-center px-6" style={{ opacity: contentOpacity }}>
-        <h1 className="text-[clamp(5rem,18vw,18rem)] font-extrabold leading-[0.85] select-none text-white tracking-[-0.03em]">
+        <h1 className="text-[clamp(5rem,18vw,18rem)] font-extrabold leading-[0.85] select-none tracking-[-0.03em]" style={{ color: "#c8cbd4" }}>
           DATA
         </h1>
 
