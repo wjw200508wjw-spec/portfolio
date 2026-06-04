@@ -6,8 +6,7 @@ import { SITE } from "@/lib/constants";
 const contacts = [
   { label: "邮箱", value: SITE.email, href: `mailto:${SITE.email}` },
   { label: "电话", value: SITE.phone, href: `tel:${SITE.phone}` },
-  { label: "GitHub", value: "github.com", href: SITE.github },
-  { label: "LinkedIn", value: "linkedin.com", href: SITE.linkedin },
+  { label: "GitHub", value: "github.com/wjw200508wjw-spec", href: SITE.github },
 ];
 
 export default function Contact() {
@@ -23,7 +22,7 @@ export default function Contact() {
         <p className="section-subtitle">期待与您交流</p>
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {contacts.map((contact, i) => (
           <motion.a
             key={contact.label}
