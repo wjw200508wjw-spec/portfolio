@@ -85,17 +85,18 @@ function DataTitle3D() {
     groupRef.current.rotation.y = Math.PI * 0.44; // ~80°
     groupRef.current.scale.set(1.8, 1.8, 1.8);
 
-    const tl = gsap.timeline({ delay: 1.8, onComplete: () => {
+    // Start rotating immediately — 6s slow uniform rotation
+    const tl = gsap.timeline({ onComplete: () => {
       entranceDoneRef.current = true;
     }});
     tl.to(groupRef.current.rotation, {
       y: 0,
-      duration: 4.0,
+      duration: 6.0,
       ease: "none",
     }, 0);
     tl.to(groupRef.current.scale, {
       x: 1, y: 1, z: 1,
-      duration: 4.0,
+      duration: 6.0,
       ease: "none",
     }, 0);
   }, [font]);

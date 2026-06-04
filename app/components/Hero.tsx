@@ -26,39 +26,39 @@ export default function Hero() {
   useEffect(() => {
     const tl = gsap.timeline();
 
-    // Phase 1: Name + Tagline + CTAs — slow gentle appearance
+    // Phase 1: Name + Tagline + CTAs — gentle centered appearance
     tl.fromTo(
       nameRef.current,
       { opacity: 0, y: 30 },
-      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }
+      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" },
+      0
     );
     tl.fromTo(
       taglineRef.current,
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" },
-      "-=0.8"
+      0.4
     );
     tl.fromTo(
       ctasRef.current,
       { opacity: 0, y: 30 },
       { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" },
-      "-=0.8"
+      0.8
     );
 
-    // At 1.8s: slide content down (same time as Data rotation starts)
+    // After 1.8s: slide content down as Data rotates toward front
     tl.to(contentRef.current, {
       y: 300,
-      duration: 4,
+      duration: 4.2,
       ease: "power2.inOut",
-    }, "1.8");
+    }, 1.8);
 
-    // Update HeroCanvas delay to match (1.8s)
-    // Scroll indicator at ~5.8s
+    // Scroll indicator
     tl.fromTo(
       scrollRef.current,
       { opacity: 0 },
       { opacity: 1, duration: 0.8 },
-      "5.0"
+      5.5
     );
 
     return () => {
