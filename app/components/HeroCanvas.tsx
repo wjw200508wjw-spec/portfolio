@@ -82,10 +82,20 @@ function DataTitle3D() {
     startedRef.current = true;
 
     groupRef.current.rotation.y = Math.PI * 0.44; // ~80°
+    groupRef.current.scale.set(1.8, 1.8, 1.8);    // start large
+
     gsap.to(groupRef.current.rotation, {
       y: 0,
       duration: 4.0,
-      ease: "none", // uniform speed
+      ease: "none",
+      delay: 1.0,
+    });
+    gsap.to(groupRef.current.scale, {
+      x: 1,
+      y: 1,
+      z: 1,
+      duration: 4.0,
+      ease: "none",
       delay: 1.0,
     });
   }, [font]);
