@@ -86,6 +86,21 @@ function DataTitle3D() {
     const tl = gsap.timeline({ onComplete: () => {
       entranceDoneRef.current = true;
     }});
+    // Fade in smoothly over 1.2s — eliminates pop-in
+    const fadeTarget = { opacity: 0 };
+    tl.to(fadeTarget, {
+      opacity: 1,
+      duration: 1.2,
+      ease: "power2.in",
+      onUpdate: () => {
+        groupRef.current?.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            ((child as THREE.Mesh).material as THREE.MeshStandardMaterial).opacity = fadeTarget.opacity;
+          }
+        });
+      },
+    }, 0);
+    // Rotation + scale over 6s
     tl.to(groupRef.current.rotation, {
       y: 0,
       duration: 6.0,
@@ -146,12 +161,19 @@ function DataTitle3D() {
   // Center geometry properly
   geometry.center();
 
-  // Set initial rotation before first paint to prevent flash
+  // Set initial state before first paint
   const setGroupRef = (el: THREE.Group | null) => {
     groupRef.current = el;
     if (el && !startedRef.current) {
       el.rotation.y = Math.PI * 0.44;
       el.scale.set(1.8, 1.8, 1.8);
+      // Start invisible, fade in via GSAP
+      el.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+          mat.opacity = 0;
+        }
+      });
     }
   };
 
