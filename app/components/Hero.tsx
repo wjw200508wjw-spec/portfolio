@@ -78,8 +78,13 @@ export default function Hero() {
       <motion.div ref={contentRef} className="relative z-10 text-center px-6" style={{ opacity: contentOpacity }}>
         {/* Graffiti DATA with eyes in the A gaps */}
         <h1
-          className="text-[clamp(5rem,18vw,18rem)] font-black leading-[0.85] select-none text-white"
-          style={{ fontFamily: "'Fredoka', cursive", fontWeight: 700 }}
+          className="text-[clamp(5rem,18vw,18rem)] leading-[0.85] select-none"
+          style={{
+            fontFamily: "'Fredoka', cursive",
+            fontWeight: 700,
+            color: "#ffffff",
+            textShadow: "0 2px 0 #ddd, 0 4px 0 #ccc, 0 6px 12px rgba(0,0,0,0.3)",
+          }}
         >
           {"DATA".split("").map((char, i) => {
             if (char === "A") {
