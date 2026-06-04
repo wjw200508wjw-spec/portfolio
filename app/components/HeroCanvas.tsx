@@ -95,7 +95,7 @@ function DataTitle3D() {
       ease: "none",
     }, 0);
     tl.to(groupRef.current.scale, {
-      x: 1, y: 1, z: 1,
+      x: 0.7, y: 0.7, z: 0.7,
       duration: 6.0,
       ease: "none",
     }, 0);
