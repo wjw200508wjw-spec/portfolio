@@ -26,38 +26,39 @@ export default function Hero() {
   useEffect(() => {
     const tl = gsap.timeline();
 
-    // Phase 1: Name + Tagline + CTAs appear (0-1s)
+    // Phase 1: Name + Tagline + CTAs — slow gentle appearance
     tl.fromTo(
       nameRef.current,
-      { opacity: 0, y: 20 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }
     );
     tl.fromTo(
       taglineRef.current,
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
-      "-=0.3"
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" },
+      "-=0.8"
     );
     tl.fromTo(
       ctasRef.current,
-      { opacity: 0, y: 15 },
-      { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" },
-      "-=0.3"
+      { opacity: 0, y: 30 },
+      { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" },
+      "-=0.8"
     );
 
-    // At 1.0s: slide content down (same time as Data rotation starts)
+    // At 1.8s: slide content down (same time as Data rotation starts)
     tl.to(contentRef.current, {
       y: 300,
       duration: 4,
       ease: "power2.inOut",
-    }, "1.0");
+    }, "1.8");
 
-    // Scroll indicator at ~5s
+    // Update HeroCanvas delay to match (1.8s)
+    // Scroll indicator at ~5.8s
     tl.fromTo(
       scrollRef.current,
       { opacity: 0 },
-      { opacity: 1, duration: 0.5 },
-      "4.5"
+      { opacity: 1, duration: 0.8 },
+      "5.0"
     );
 
     return () => {

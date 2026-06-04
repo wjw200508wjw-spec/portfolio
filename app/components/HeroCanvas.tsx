@@ -88,7 +88,7 @@ function DataTitle3D() {
       y: 0,
       duration: 4.0,
       ease: "none",
-      delay: 1.0,
+      delay: 1.8,
     });
     gsap.to(groupRef.current.scale, {
       x: 1,
@@ -96,7 +96,7 @@ function DataTitle3D() {
       z: 1,
       duration: 4.0,
       ease: "none",
-      delay: 1.0,
+      delay: 1.8,
     });
   }, [font]);
 
@@ -155,7 +155,7 @@ function DataTitle3D() {
     <group ref={groupRef} position={[centerX, centerY, 0]}>
       <mesh geometry={geometry}>
         <meshStandardMaterial
-          color="#ffffff"
+          color="#d0d4dc"
           roughness={0.35}
           metalness={0.05}
           transparent
