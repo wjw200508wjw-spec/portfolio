@@ -5,43 +5,6 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { SITE } from "@/lib/constants";
 import HeroCanvas from "./HeroCanvas";
 
-// 3D extruded text: X-shifted layers create visible extrusion width when rotated on Y.
-// At rotateY=80°, the X offset becomes depth — the layers spread into Z space,
-// making the side wall of the text clearly visible.
-function Data3D() {
-  const layers = [
-    { x: -10, color: "rgba(70,75,90,0.15)" },
-    { x: -8, color: "rgba(90,95,110,0.2)" },
-    { x: -7, color: "rgba(110,115,135,0.28)" },
-    { x: -6, color: "rgba(130,138,155,0.35)" },
-    { x: -5, color: "rgba(155,160,180,0.45)" },
-    { x: -4, color: "rgba(175,180,200,0.55)" },
-    { x: -3, color: "rgba(195,200,215,0.65)" },
-    { x: -2, color: "rgba(220,225,240,0.78)" },
-    { x: -1, color: "rgba(240,243,248,0.9)" },
-    { x: 0, color: "#ffffff" },
-  ];
-
-  return (
-    <span className="relative inline-block text-[clamp(5rem,18vw,18rem)] font-black leading-[0.8] select-none">
-      {layers.map((layer, i) => (
-        <span
-          key={i}
-          aria-hidden={i < layers.length - 1}
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap"
-          style={{
-            color: layer.color,
-            transform: `translateX(${layer.x}px)`,
-          }}
-        >
-          Data
-        </span>
-      ))}
-      <span className="invisible">Data</span>
-    </span>
-  );
-}
-
 export default function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
@@ -58,17 +21,17 @@ export default function Hero() {
       ref={containerRef}
       className="relative h-screen w-full flex items-center justify-center overflow-hidden"
     >
-      {/* Three.js particles */}
+      {/* Three.js: 3D Data + particles */}
       <motion.div style={{ opacity: particlesOpacity }} className="absolute inset-0">
         <HeroCanvas />
       </motion.div>
 
-      {/* ====== Phase 1: Name + Tagline + CTAs (0-1s center, then slide down) ====== */}
+      {/* Name + Tagline + CTAs — appear first, then slide down */}
       <motion.div
         className="relative z-10 text-center px-6"
         initial={{ y: 0 }}
-        animate={{ y: [0, 0, 320] }}
-        transition={{ duration: 4.5, times: [0, 0.22, 1], ease: "easeInOut" }}
+        animate={{ y: [0, 0, 300] }}
+        transition={{ duration: 5, times: [0, 0.2, 1], ease: "easeInOut" }}
         style={{ opacity: contentOpacity }}
       >
         <motion.p
@@ -110,28 +73,6 @@ export default function Hero() {
           >
             下载简历
           </a>
-        </motion.div>
-      </motion.div>
-
-      {/* ====== Phase 2: 3D "Data" — multi-layer X-shifted extrusion ====== */}
-      <motion.div
-        className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
-        style={{ perspective: "1500px" }}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.01, delay: 1.0 }}
-      >
-        <motion.div
-          initial={{ rotateY: 80, scale: 2.0 }}
-          animate={{ rotateY: 0, scale: 1 }}
-          transition={{
-            duration: 4.0,
-            ease: "linear",
-            delay: 1.0,
-          }}
-          style={{ transformStyle: "preserve-3d" }}
-        >
-          <Data3D />
         </motion.div>
       </motion.div>
 
