@@ -4,8 +4,8 @@ import { motion } from "framer-motion";
 import { SITE } from "@/lib/constants";
 
 const contacts = [
-  { label: "Email", value: SITE.email, href: `mailto:${SITE.email}` },
-  { label: "Phone", value: SITE.phone, href: `tel:${SITE.phone}` },
+  { label: "邮箱", value: SITE.email, href: `mailto:${SITE.email}` },
+  { label: "电话", value: SITE.phone, href: `tel:${SITE.phone}` },
   { label: "GitHub", value: "github.com", href: SITE.github },
   { label: "LinkedIn", value: "linkedin.com", href: SITE.linkedin },
 ];
@@ -19,8 +19,8 @@ export default function Contact() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">Contact</h2>
-        <p className="section-subtitle">Get in touch</p>
+        <h2 className="section-title">联系方式</h2>
+        <p className="section-subtitle">期待与您交流</p>
       </motion.div>
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">

@@ -13,9 +13,9 @@ export default function Projects() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">Projects</h2>
+        <h2 className="section-title">项目</h2>
         <p className="section-subtitle">
-          Key projects in data engineering &amp; AI agent development
+          数据工程 &amp; AI Agent 开发核心项目
         </p>
       </motion.div>
 

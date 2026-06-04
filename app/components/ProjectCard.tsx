@@ -29,7 +29,7 @@ export default function ProjectCard({
         <div className="flex items-start justify-between">
           <div>
             <span className="text-xs text-text-secondary uppercase tracking-wider">
-              Project {String(index + 1).padStart(2, "0")}
+              项目 {String(index + 1).padStart(2, "0")}
             </span>
             <h3 className="text-xl font-bold text-text-primary mt-2">
               {project.title}
@@ -68,7 +68,7 @@ export default function ProjectCard({
             <div className="px-8 pb-8 border-t border-bg-elevated pt-6 space-y-6">
               <div>
                 <h4 className="text-sm font-semibold text-text-primary mb-2">
-                  Overview
+                  概述
                 </h4>
                 <p className="text-text-muted text-sm leading-relaxed">
                   {project.description}
@@ -77,14 +77,14 @@ export default function ProjectCard({
 
               <div>
                 <h4 className="text-sm font-semibold text-text-primary mb-2">
-                  Architecture
+                  架构
                 </h4>
                 <ArchitectureDiagram steps={project.flowSteps} />
               </div>
 
               <div>
                 <h4 className="text-sm font-semibold text-text-primary mb-2">
-                  Databases
+                  数据库
                 </h4>
                 <div className="flex flex-wrap gap-2">
                   {project.databases.map((db) => (
@@ -100,7 +100,7 @@ export default function ProjectCard({
 
               <div>
                 <h4 className="text-sm font-semibold text-text-primary mb-2">
-                  Outcomes
+                  成果
                 </h4>
                 <ul className="space-y-2">
                   {project.outcomes.map((o, i) => (

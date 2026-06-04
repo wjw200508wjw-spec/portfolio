@@ -5,13 +5,13 @@ import { SKILLS, SITE } from "@/lib/constants";
 import TechCard from "./TechCard";
 
 const categoryLabels: Record<string, string> = {
-  language: "Languages",
-  database: "Databases",
-  bigdata: "Big Data",
-  sync: "Data Sync",
-  platform: "Platforms",
+  language: "编程语言",
+  database: "数据库",
+  bigdata: "大数据",
+  sync: "数据同步",
+  platform: "平台工具",
   ai: "AI & Agents",
-  backend: "Backend",
+  backend: "后端",
 };
 
 export default function About() {
@@ -25,8 +25,8 @@ export default function About() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">About Me</h2>
-        <p className="section-subtitle">Data Engineer &amp; AI Agent Developer</p>
+        <h2 className="section-title">关于我</h2>
+        <p className="section-subtitle">数据工程师 &amp; AI Agent 开发者</p>
       </motion.div>
 
       <div className="grid lg:grid-cols-[1fr_2fr] gap-16">
@@ -51,7 +51,7 @@ export default function About() {
           >
             <div>
               <span className="text-xs text-text-secondary uppercase tracking-wider">
-                Education
+               教育背景
               </span>
               <p className="text-text-muted text-sm mt-1">
                 {SITE.education.school} &middot; {SITE.education.major} &middot;{" "}
@@ -60,7 +60,7 @@ export default function About() {
             </div>
             <div>
               <span className="text-xs text-text-secondary uppercase tracking-wider">
-                Experience
+               工作经历
               </span>
               <p className="text-text-muted text-sm mt-1">
                 {SITE.workExperience.company} &middot; {SITE.workExperience.role} &middot;{" "}

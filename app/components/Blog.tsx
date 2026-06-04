@@ -5,16 +5,16 @@ import { motion, AnimatePresence } from "framer-motion";
 import { BLOG_POSTS } from "@/lib/constants";
 
 export default function Blog() {
-  const [activeCategory, setActiveCategory] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("全部");
 
   const categories = useMemo(
-    () => ["All", ...new Set(BLOG_POSTS.map((p) => p.category))],
+    () => ["全部", ...new Set(BLOG_POSTS.map((p) => p.category))],
     []
   );
 
   const filtered = useMemo(
     () =>
-      activeCategory === "All"
+      activeCategory === "全部"
         ? BLOG_POSTS
         : BLOG_POSTS.filter((p) => p.category === activeCategory),
     [activeCategory]
@@ -28,9 +28,9 @@ export default function Blog() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">Blog</h2>
+        <h2 className="section-title">博客</h2>
         <p className="section-subtitle">
-          Thoughts on data engineering, AI agents, and more
+          数据工程、AI Agent 与技术思考
         </p>
       </motion.div>
 

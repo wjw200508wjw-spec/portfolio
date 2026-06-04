@@ -5,7 +5,7 @@ export const SITE = {
   nameEn: "Wang Jiawei",
   title: "Data Engineer / AI Agent Developer",
   heroWord: "Data",
-  tagline: "Building Enterprise Data Platforms and Intelligent Agent Systems",
+  tagline: "构建企业级数据平台与智能 Agent 系统",
   email: "2924539178@qq.com",
   phone: "18692174538",
   github: "https://github.com",
@@ -36,12 +36,12 @@ export const SITE = {
 };
 
 export const NAV_ITEMS: NavItem[] = [
-  { label: "About", href: "#about" },
-  { label: "Projects", href: "#projects" },
-  { label: "AI Lab", href: "#ai-lab" },
-  { label: "Blog", href: "#blog" },
-  { label: "Dashboard", href: "#dashboard" },
-  { label: "Contact", href: "#contact" },
+  { label: "关于", href: "#about" },
+  { label: "项目", href: "#projects" },
+  { label: "AI实验室", href: "#ai-lab" },
+  { label: "博客", href: "#blog" },
+  { label: "数据面板", href: "#dashboard" },
+  { label: "联系", href: "#contact" },
 ];
 
 export const SKILLS: Skill[] = [

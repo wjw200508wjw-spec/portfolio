@@ -87,18 +87,18 @@ export default function DataDashboard() {
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
       >
-        <h2 className="section-title">Data Dashboard</h2>
-        <p className="section-subtitle">Project &amp; activity metrics</p>
+        <h2 className="section-title">数据面板</h2>
+        <p className="section-subtitle">项目 &amp; 活动数据统计</p>
       </motion.div>
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
-          { label: "Projects", value: DASHBOARD_STATS.projects },
-          { label: "Blog Posts", value: DASHBOARD_STATS.blogPosts },
-          { label: "GitHub Commits", value: DASHBOARD_STATS.githubCommits },
+          { label: "项目", value: DASHBOARD_STATS.projects },
+          { label: "博客文章", value: DASHBOARD_STATS.blogPosts },
+          { label: "GitHub 提交", value: DASHBOARD_STATS.githubCommits },
           {
-            label: "Agent Uses",
+            label: "Agent 调用",
             value: DASHBOARD_STATS.agentUsage.toLocaleString(),
           },
         ].map((stat, i) => (

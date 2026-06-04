@@ -61,8 +61,12 @@ export default function SideIndicator() {
             transition={{ duration: 0.3 }}
             className="rounded-full"
           />
-          <span className="absolute right-8 text-xs text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap capitalize">
-            {section === "ai-lab" ? "AI Lab" : section}
+          <span className="absolute right-8 text-xs text-text-secondary opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            {{
+              hero: "首页", about: "关于", projects: "项目",
+              "ai-lab": "AI实验室", blog: "博客",
+              dashboard: "数据面板", contact: "联系",
+            }[section] || section}
           </span>
         </button>
       ))}
