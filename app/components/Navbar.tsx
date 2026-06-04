@@ -44,23 +44,23 @@ export default function Navbar() {
           transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
           className="glass fixed top-0 left-0 right-0 z-50"
         >
-          <div className="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="max-w-[1280px] mx-auto px-8 h-18 flex items-center justify-between">
             <button
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="text-text-primary font-semibold text-lg tracking-tight hover:text-text-bright transition-colors"
+              className="text-text-primary font-bold text-xl tracking-tight hover:text-text-bright transition-colors"
             >
               {SITE.nameEn}
             </button>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
               {NAV_ITEMS.map((item) => (
                 <button
                   key={item.href}
                   onClick={() => scrollTo(item.href)}
-                  className={`px-4 py-2 text-sm rounded-full transition-all duration-300 ${
+                  className={`px-5 py-2.5 text-[0.9rem] rounded-full transition-all duration-300 ${
                     activeSection === item.href.slice(1)
-                      ? "text-text-bright bg-bg-elevated"
-                      : "text-text-secondary hover:text-text-primary"
+                      ? "text-text-bright bg-bg-elevated scale-105"
+                      : "text-text-secondary hover:text-text-primary hover:scale-105"
                   }`}
                 >
                   {item.label}

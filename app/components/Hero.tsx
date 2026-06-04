@@ -50,7 +50,7 @@ export default function Hero() {
             perspective: "1000px",
             transformStyle: "preserve-3d" as const,
           }}
-          className="text-[clamp(5rem,15vw,16rem)] font-black text-text-primary tracking-[-0.04em] leading-[0.85] select-none"
+          className="text-[clamp(6rem,24vw,22rem)] font-black text-text-primary tracking-[-0.05em] leading-[0.8] select-none"
         >
           Data
         </motion.h1>

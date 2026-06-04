@@ -10,8 +10,8 @@ export default function AgentCard({ agent, index }: { agent: AgentTool; index: n
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.4, delay: index * 0.1 }}
-      whileHover={{ y: -6, borderColor: "var(--text-muted)" }}
-      className="bg-bg-surface border border-bg-elevated rounded-2xl p-8 transition-colors group"
+      whileHover={{ y: -10, scale: 1.02, borderColor: "var(--text-muted)", boxShadow: "0 8px 40px rgba(0,0,0,0.3)" }}
+      className="bg-bg-surface border border-bg-elevated rounded-2xl p-8 transition-all duration-300 group"
     >
       <div className="text-4xl mb-4">{agent.icon}</div>
       <h3 className="text-lg font-bold text-text-primary mb-2">{agent.name}</h3>

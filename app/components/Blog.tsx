@@ -62,7 +62,8 @@ export default function Blog() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.3 }}
-              className="bg-bg-surface border border-bg-elevated rounded-xl p-6 hover:border-border-muted transition-colors group"
+              whileHover={{ y: -6, scale: 1.01, borderColor: "var(--text-muted)" }}
+              className="bg-bg-surface border border-bg-elevated rounded-xl p-7 transition-all duration-300 group"
             >
               <span className="text-xs text-text-secondary uppercase tracking-wider">
                 {post.category}

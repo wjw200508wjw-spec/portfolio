@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --bg-deepest: #141518;
-  --bg-surface: #1a1b1e;
-  --bg-elevated: #2c2d30;
-  --border-muted: #4a5568;
-  --text-secondary: #718096;
-  --text-muted: #a0aec0;
-  --text-primary: #cbd5e0;
-  --text-bright: #e2e8f0;
+  --bg-deepest: #1a1d21;
+  --bg-surface: #222528;
+  --bg-elevated: #2e3136;
+  --border-muted: #545b68;
+  --text-secondary: #87909e;
+  --text-muted: #b4bcc8;
+  --text-primary: #dde4ee;
+  --text-bright: #f0f4f8;
   --accent: #8b9a7e;
   --accent-subtle: rgba(139, 154, 126, 0.15);
 }
@@ -33,6 +33,7 @@ html {
   scroll-behavior: smooth;
   background-color: var(--bg-deepest);
   color: var(--text-muted);
+  font-size: 17px;
 }
 
 body {
@@ -43,36 +44,36 @@ body {
 
 .glass {
   background: color-mix(in srgb, var(--bg-surface) 70%, transparent);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid color-mix(in srgb, var(--border-muted) 30%, transparent);
 }
 
-/* Responsive section padding */
-@media (max-width: 640px) {
-  .section-container {
-    padding: 60px 16px;
-  }
-}
-
 .section-container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 120px 24px;
+  padding: 140px 32px;
 }
 
 .section-title {
-  font-size: 2.25rem;
+  font-size: 2.75rem;
   font-weight: 700;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.03em;
   margin-bottom: 0.5rem;
 }
 
 .section-subtitle {
-  font-size: 1rem;
+  font-size: 1.15rem;
   color: var(--text-secondary);
-  margin-bottom: 3rem;
+  margin-bottom: 3.5rem;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .section-container { padding: 80px 20px; }
+  .section-title { font-size: 2rem; }
 }
 
 ::-webkit-scrollbar { width: 6px; }

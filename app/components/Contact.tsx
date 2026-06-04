@@ -34,8 +34,8 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.3, delay: i * 0.08 }}
-            whileHover={{ y: -4, borderColor: "var(--text-muted)" }}
-            className="bg-bg-surface border border-bg-elevated rounded-xl p-6 text-center transition-colors"
+            whileHover={{ y: -8, scale: 1.03, borderColor: "var(--text-muted)", boxShadow: "0 6px 25px rgba(0,0,0,0.25)" }}
+            className="bg-bg-surface border border-bg-elevated rounded-xl p-7 text-center transition-all duration-300"
           >
             <div className="text-xs text-text-secondary uppercase tracking-wider mb-2">
               {contact.label}
