@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SITE } from "@/lib/constants";
+import ParticleBackground from "./components/ParticleBackground";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -35,7 +36,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen relative">
+        <ParticleBackground />
+        <div className="relative" style={{ zIndex: 1 }}>{children}</div>
+      </body>
     </html>
   );
 }
