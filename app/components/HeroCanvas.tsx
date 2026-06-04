@@ -5,147 +5,142 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { MotionValue, useMotionValueEvent } from "framer-motion";
 import * as THREE from "three";
 
-const PARTICLE_SIZE = 0.07;
-const CANVAS_W = 400;
-const SAMPLE_STEP = 3;
-
-function sampleTextPixels(): Float32Array | null {
+// ---- Sample text pixels from offscreen canvas ----
+function sampleText(): { textPos: Float32Array; scatterPos: Float32Array } | null {
   if (typeof document === "undefined") return null;
 
   const canvas = document.createElement("canvas");
-  const h = Math.round(CANVAS_W * 0.65);
-  canvas.width = CANVAS_W;
-  canvas.height = h;
+  canvas.width = 400;
+  canvas.height = 260;
   const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#000";
+  ctx.fillRect(0, 0, 400, 260);
 
-  ctx.fillStyle = "#000000";
-  ctx.fillRect(0, 0, CANVAS_W, h);
-
-  ctx.fillStyle = "#ffffff";
-  ctx.font = `bold ${CANVAS_W * 0.22}px Inter, system-ui, sans-serif`;
+  // DATA (big)
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 80px Arial, sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("DATA", CANVAS_W / 2, h * 0.28);
+  ctx.fillText("DATA", 200, 90);
 
-  ctx.font = `600 ${CANVAS_W * 0.06}px Inter, system-ui, sans-serif`;
-  ctx.fillStyle = "#e0e0e0";
-  ctx.fillText("王佳伟", CANVAS_W / 2, h * 0.52);
+  // 王佳伟
+  ctx.font = "600 24px Arial, sans-serif";
+  ctx.fillText("王佳伟", 200, 165);
 
-  ctx.font = `${CANVAS_W * 0.035}px Inter, system-ui, sans-serif`;
-  ctx.fillStyle = "#c0c0c0";
-  ctx.fillText("构建企业级数据平台与智能 Agent 系统", CANVAS_W / 2, h * 0.62);
+  // Tagline
+  ctx.font = "16px Arial, sans-serif";
+  ctx.fillStyle = "#ddd";
+  ctx.fillText("构建企业级数据平台与智能 Agent 系统", 200, 195);
 
-  const imageData = ctx.getImageData(0, 0, CANVAS_W, h);
-  const pixels: number[] = [];
+  // Sample every N pixels
+  const step = 5;
+  const img = ctx.getImageData(0, 0, 400, 260);
+  const pts: number[] = [];
 
-  for (let y = 0; y < h; y += SAMPLE_STEP) {
-    for (let x = 0; x < CANVAS_W; x += SAMPLE_STEP) {
-      const idx = (y * CANVAS_W + x) * 4;
-      if (imageData.data[idx + 3] > 100) {
-        const px = (x / CANVAS_W - 0.5) * 12;
-        const py = -(y / h - 0.5) * 7.8;
-        const pz = (Math.random() - 0.5) * 0.3;
-        pixels.push(px, py, pz);
+  for (let y = 0; y < 260; y += step) {
+    for (let x = 0; x < 400; x += step) {
+      if (img.data[(y * 400 + x) * 4 + 3] > 100) {
+        // Map canvas (0..400, 0..260) → world (-6..6, -3.9..3.9) centered
+        pts.push((x / 400 - 0.5) * 12, -(y / 260 - 0.5) * 7.8, (Math.random() - 0.5) * 0.3);
       }
     }
   }
 
-  console.log("Sampled particles:", pixels.length / 3);
-  return new Float32Array(pixels);
+  const count = pts.length / 3;
+  if (count === 0) return null;
+
+  const textPos = new Float32Array(pts);
+  const scatterPos = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const r = 3 + Math.random() * 10;
+    scatterPos[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
+    scatterPos[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r;
+    scatterPos[i * 3 + 2] = Math.cos(phi) * r;
+  }
+
+  console.log("Particles:", count);
+  return { textPos, scatterPos };
 }
 
+// ---- Particle system ----
 function ParticleText({ scrollProgress }: { scrollProgress: MotionValue<number> }) {
   const pointsRef = useRef<THREE.Points>(null);
-  const scatterPositions = useRef<Float32Array | null>(null);
-  const textPositions = useRef<Float32Array | null>(null);
-  const currentPositions = useRef<Float32Array | null>(null);
-  const scrollValue = useRef(0);
-  const timer = useRef(0);
-  const [geometry, setGeometry] = useState<THREE.BufferGeometry | null>(null);
-  const particleCount = useRef(0);
+  const dataRef = useRef<{ textPos: Float32Array; scatterPos: Float32Array } | null>(null);
+  const curRef = useRef<Float32Array | null>(null);
+  const scrollV = useRef(0);
+  const time = useRef(0);
   const assembled = useRef(false);
+  const [ready, setReady] = useState(false);
 
-  useMotionValueEvent(scrollProgress, "change", (v) => {
-    scrollValue.current = v;
-  });
+  useMotionValueEvent(scrollProgress, "change", (v) => { scrollV.current = v; });
 
   useEffect(() => {
-    const textPos = sampleTextPixels();
-    if (!textPos || textPos.length < 3) return;
-
-    const count = Math.floor(textPos.length / 3);
-    particleCount.current = count;
-    textPositions.current = textPos;
-
-    const scatter = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      const r = 3 + Math.random() * 10;
-      scatter[i * 3] = Math.sin(phi) * Math.cos(theta) * r;
-      scatter[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * r;
-      scatter[i * 3 + 2] = Math.cos(phi) * r;
-    }
-    scatterPositions.current = scatter;
-    currentPositions.current = new Float32Array(scatter);
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.BufferAttribute(new Float32Array(scatter), 3));
-    geo.setDrawRange(0, count);
-    setGeometry(geo);
+    const d = sampleText();
+    if (!d) return;
+    dataRef.current = d;
+    curRef.current = new Float32Array(d.scatterPos);
+    setReady(true);
   }, []);
 
   useFrame((_, delta) => {
-    if (!pointsRef.current || !textPositions.current || !scatterPositions.current || !currentPositions.current) return;
+    const pts = pointsRef.current;
+    const data = dataRef.current;
+    const cur = curRef.current;
+    if (!pts || !data || !cur) return;
 
-    const textPos = textPositions.current;
-    const scatterPos = scatterPositions.current;
-    const curPos = currentPositions.current;
-    const count = particleCount.current;
-    const s = scrollValue.current;
+    const { textPos, scatterPos } = data;
+    const count = textPos.length / 3;
+    time.current += delta;
 
-    timer.current += delta;
-
-    // Assemble phase
+    // Assemble 0.3→2.0s
     if (!assembled.current) {
-      const t = Math.max(0, Math.min(1, (timer.current - 0.2) / 1.5));
+      const t = Math.max(0, Math.min(1, (time.current - 0.3) / 1.7));
       for (let i = 0; i < count; i++) {
         const i3 = i * 3;
-        curPos[i3] = scatterPos[i3] + (textPos[i3] - scatterPos[i3]) * t;
-        curPos[i3 + 1] = scatterPos[i3 + 1] + (textPos[i3 + 1] - scatterPos[i3 + 1]) * t;
-        curPos[i3 + 2] = scatterPos[i3 + 2] + (textPos[i3 + 2] - scatterPos[i3 + 2]) * t;
+        cur[i3] = scatterPos[i3] + (textPos[i3] - scatterPos[i3]) * t;
+        cur[i3 + 1] = scatterPos[i3 + 1] + (textPos[i3 + 1] - scatterPos[i3 + 1]) * t;
+        cur[i3 + 2] = scatterPos[i3 + 2] + (textPos[i3 + 2] - scatterPos[i3 + 2]) * t;
       }
       if (t >= 1) assembled.current = true;
     } else {
-      // Scroll-driven: blend between text and scatter
-      const dispersion = Math.max(0, Math.min(1, s * 2.5));
+      // Scroll dispersion
+      const d = Math.max(0, Math.min(1, scrollV.current * 2.5));
       for (let i = 0; i < count; i++) {
         const i3 = i * 3;
-        curPos[i3] = textPos[i3] + (scatterPos[i3] - textPos[i3]) * dispersion;
-        curPos[i3 + 1] = textPos[i3 + 1] + (scatterPos[i3 + 1] - textPos[i3 + 1]) * dispersion;
-        curPos[i3 + 2] = textPos[i3 + 2] + (scatterPos[i3 + 2] - textPos[i3 + 2]) * dispersion;
+        cur[i3] = textPos[i3] + (scatterPos[i3] - textPos[i3]) * d;
+        cur[i3 + 1] = textPos[i3 + 1] + (scatterPos[i3 + 1] - textPos[i3 + 1]) * d;
+        cur[i3 + 2] = textPos[i3 + 2] + (scatterPos[i3 + 2] - textPos[i3 + 2]) * d;
       }
     }
 
-    // Slow rotation so particles drift even after dispersing
-    if (pointsRef.current) {
-      pointsRef.current.rotation.y += delta * 0.015;
-      pointsRef.current.rotation.x += delta * 0.008;
-    }
+    // Rotate slowly (keeps particles floating in bg after dispersing)
+    pts.rotation.y += delta * 0.015;
+    pts.rotation.x += delta * 0.008;
 
-    const attr = pointsRef.current.geometry.attributes.position;
-    attr.array.set(curPos.subarray(0, count * 3));
-    attr.needsUpdate = true;
-    pointsRef.current.geometry.setDrawRange(0, count);
+    pts.geometry.attributes.position.array.set(cur.subarray(0, count * 3));
+    pts.geometry.attributes.position.needsUpdate = true;
+    pts.geometry.setDrawRange(0, count);
   });
 
-  if (!geometry) return null;
+  if (!ready || !dataRef.current) return null;
+
+  const count = dataRef.current.textPos.length / 3;
 
   return (
-    <points ref={pointsRef} geometry={geometry}>
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[new Float32Array(dataRef.current.scatterPos), 3]}
+          count={count}
+          itemSize={3}
+        />
+      </bufferGeometry>
       <pointsMaterial
-        size={PARTICLE_SIZE}
-        color="#e8e8f0"
+        size={0.1}
+        color="#f0f0f8"
         transparent
         opacity={0.9}
         blending={THREE.AdditiveBlending}
