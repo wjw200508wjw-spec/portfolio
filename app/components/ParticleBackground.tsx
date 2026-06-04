@@ -4,6 +4,10 @@ import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+const PARTICLE_COUNT = 600;
+const MAX_RADIUS = 14;
+const SPAWN_RATE = 0.6; // particles per second regenerated
+
 function GlowSprite() {
   return useMemo(() => {
     const size = 128;
@@ -12,14 +16,12 @@ function GlowSprite() {
     canvas.height = size;
     const ctx = canvas.getContext("2d")!;
 
-    // Ultra-soft radial glow
     const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     gradient.addColorStop(0, "rgba(255,255,255,1)");
-    gradient.addColorStop(0.02, "rgba(255,255,255,0.95)");
-    gradient.addColorStop(0.08, "rgba(240,245,255,0.6)");
-    gradient.addColorStop(0.2, "rgba(180,200,240,0.2)");
-    gradient.addColorStop(0.4, "rgba(80,120,180,0.05)");
-    gradient.addColorStop(0.65, "rgba(20,40,80,0.01)");
+    gradient.addColorStop(0.03, "rgba(255,255,255,0.9)");
+    gradient.addColorStop(0.1, "rgba(220,235,255,0.5)");
+    gradient.addColorStop(0.25, "rgba(150,190,240,0.15)");
+    gradient.addColorStop(0.5, "rgba(60,100,160,0.03)");
     gradient.addColorStop(1, "rgba(0,0,0,0)");
 
     ctx.fillStyle = gradient;
@@ -31,153 +33,164 @@ function GlowSprite() {
   }, []);
 }
 
-interface CelestialBody {
-  mesh: THREE.Mesh;
-  speed: number;
-  axis: THREE.Vector3;
-  orbitRadius: number;
-  baseAngle: number;
-  yOffset: number;
-}
-
-function CelestialField() {
-  const groupRef = useRef<THREE.Group>(null);
-  const twinkleRef = useRef(0);
-  const glowTexture = GlowSprite();
-  const bodiesRef = useRef<CelestialBody[]>([]);
+function ExpandingField() {
+  const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.PointsMaterial>(null);
+  const glowTexture = GlowSprite();
 
-  // Create background stars (points) with glow texture
-  const { starsGeo, planetData } = useMemo(() => {
-    const starCount = 250;
-    const geo = new THREE.BufferGeometry();
-    const positions = new Float32Array(starCount * 3);
-    const colors = new Float32Array(starCount * 3);
-    const sizes = new Float32Array(starCount);
+  // Each particle: [x, y, z, vx, vy, vz, life, maxLife, baseSize]
+  const particleData = useRef(new Float32Array(PARTICLE_COUNT * 9));
+  const spawnTimer = useRef(0);
 
-    const planets: { pos: THREE.Vector3; size: number; color: THREE.Color }[] = [];
-
-    for (let i = 0; i < starCount; i++) {
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos(2 * Math.random() - 1);
-      // Distribute across layers: near (4-7), mid (7-12), far (12-20)
-      const layer = Math.random();
-      let radius: number;
-      if (layer < 0.15) {
-        radius = 4 + Math.random() * 3;   // near - fewer, brighter
-      } else if (layer < 0.5) {
-        radius = 7 + Math.random() * 5;   // mid
-      } else {
-        radius = 12 + Math.random() * 8;  // far - many, dim
-      }
-
-      positions[i * 3] = Math.sin(phi) * Math.cos(theta) * radius;
-      positions[i * 3 + 1] = Math.sin(phi) * Math.sin(theta) * radius * 0.7;
-      positions[i * 3 + 2] = Math.cos(phi) * radius;
-
-      // Color temperature based on distance: near=warmer, far=cooler
-      const dist = radius / 20;
-      if (Math.random() < 0.1) {
-        // Golden warm stars
-        colors[i * 3] = 1.0; colors[i * 3 + 1] = 0.85; colors[i * 3 + 2] = 0.6;
-      } else if (Math.random() < 0.2) {
-        // Cool blue
-        colors[i * 3] = 0.6; colors[i * 3 + 1] = 0.7; colors[i * 3 + 2] = 1.0;
-      } else {
-        // Neutral white-blue
-        const b = 0.75 + (1 - dist) * 0.25;
-        colors[i * 3] = b * 0.85; colors[i * 3 + 1] = b * 0.9; colors[i * 3 + 2] = b;
-      }
-
-      // Size: closer = larger, farther = smaller
-      sizes[i] = (0.015 + (1 - dist) * 0.08) * (0.5 + Math.random() * 0.5);
-
-      // Collect a few for planet meshes
-      if (i < 12) {
-        planets.push({
-          pos: new THREE.Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2]),
-          size: 0.03 + Math.random() * 0.08,
-          color: new THREE.Color(colors[i * 3], colors[i * 3 + 1], colors[i * 3 + 2]),
-        });
-      }
+  // Initialize all particles
+  useMemo(() => {
+    const d = particleData.current;
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      resetParticle(d, i, true);
     }
-
-    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-    geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-    geo.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-    return { starsGeo: geo, planetData: planets };
   }, []);
 
-  // Initialize orbiting celestial bodies on first render
-  const initialized = useRef(false);
-  if (!initialized.current && groupRef.current) {
-    planetData.forEach((p) => {
-      const sphereGeo = new THREE.SphereGeometry(p.size, 16, 16);
-      const sphereMat = new THREE.MeshBasicMaterial({
-        color: p.color,
-        transparent: true,
-        opacity: 0.7,
-      });
-      const mesh = new THREE.Mesh(sphereGeo, sphereMat);
-      mesh.position.copy(p.pos);
-      groupRef.current!.add(mesh);
-      bodiesRef.current.push({
-        mesh,
-        speed: 0.02 + Math.random() * 0.08,
-        axis: new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize(),
-        orbitRadius: p.pos.length(),
-        baseAngle: Math.random() * Math.PI * 2,
-        yOffset: p.pos.y,
-      });
-    });
-    initialized.current = true;
+  function resetParticle(d: Float32Array, i: number, randomLife: boolean) {
+    const idx = i * 9;
+    // Random direction on unit sphere
+    const theta = Math.random() * Math.PI * 2;
+    const phi = Math.acos(2 * Math.random() - 1);
+    const dirX = Math.sin(phi) * Math.cos(theta);
+    const dirY = Math.sin(phi) * Math.sin(theta);
+    const dirZ = Math.cos(phi);
+
+    // Start near center
+    const startRadius = 0.1 + Math.random() * 0.5;
+    d[idx] = dirX * startRadius;
+    d[idx + 1] = dirY * startRadius;
+    d[idx + 2] = dirZ * startRadius;
+
+    // Velocity: outward, varied speeds
+    const speed = 0.3 + Math.random() * 2.0;
+    d[idx + 3] = dirX * speed;
+    d[idx + 4] = dirY * speed;
+    d[idx + 5] = dirZ * speed;
+
+    // Life tracking
+    d[idx + 6] = randomLife ? Math.random() * 10 : 0;
+    d[idx + 7] = 8 + Math.random() * 12; // max life
+    d[idx + 8] = 0.01 + Math.random() * 0.06; // base size
   }
 
-  const starsRef = useRef<THREE.Points>(null);
+  const positionsRef = useRef(new Float32Array(PARTICLE_COUNT * 3));
+  const colorsRef = useRef(new Float32Array(PARTICLE_COUNT * 3));
+  const sizesRef = useRef(new Float32Array(PARTICLE_COUNT));
 
   useFrame((_, delta) => {
-    // Slow rotation of starfield
-    if (starsRef.current) {
-      starsRef.current.rotation.y += delta * 0.015;
-      starsRef.current.rotation.x += delta * 0.006;
+    const d = particleData.current;
+    const pos = positionsRef.current;
+    const col = colorsRef.current;
+    const siz = sizesRef.current;
+
+    spawnTimer.current += delta;
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const idx = i * 9;
+      let x = d[idx];
+      let y = d[idx + 1];
+      let z = d[idx + 2];
+      const vx = d[idx + 3];
+      const vy = d[idx + 4];
+      const vz = d[idx + 5];
+      let life = d[idx + 6] + delta;
+      const maxLife = d[idx + 7];
+      const baseSize = d[idx + 8];
+
+      // Move outward
+      x += vx * delta;
+      y += vy * delta;
+      z += vz * delta;
+
+      let dist = Math.sqrt(x * x + y * y + z * z);
+
+      // Reset if too far or too old
+      if (dist > MAX_RADIUS || life > maxLife) {
+        // Spawn new particle at center
+        const theta2 = Math.random() * Math.PI * 2;
+        const phi2 = Math.acos(2 * Math.random() - 1);
+        const ndx = Math.sin(phi2) * Math.cos(theta2);
+        const ndy = Math.sin(phi2) * Math.sin(theta2);
+        const ndz = Math.cos(phi2);
+        const nSpeed = 0.3 + Math.random() * 2.0;
+
+        x = ndx * (0.05 + Math.random() * 0.3);
+        y = ndy * (0.05 + Math.random() * 0.3);
+        z = ndz * (0.05 + Math.random() * 0.3);
+        d[idx + 3] = ndx * nSpeed;
+        d[idx + 4] = ndy * nSpeed;
+        d[idx + 5] = ndz * nSpeed;
+        d[idx + 7] = 8 + Math.random() * 12;
+        d[idx + 8] = 0.01 + Math.random() * 0.06;
+        life = 0;
+        dist = 0.1;
+      }
+
+      d[idx] = x;
+      d[idx + 1] = y;
+      d[idx + 2] = z;
+      d[idx + 6] = life;
+
+      pos[i * 3] = x;
+      pos[i * 3 + 1] = y;
+      pos[i * 3 + 2] = z;
+
+      // Life-based fade: bright at birth, fade with age
+      const lifeRatio = Math.min(life / maxLife, 1);
+      const fadeIn = Math.min(life / 0.8, 1); // quick fade in
+      const fadeOut = 1 - Math.max(0, (lifeRatio - 0.5) * 2); // fade out in second half
+      const alpha = fadeIn * fadeOut;
+
+      // Color: warm near center, cool far away
+      const distRatio = Math.min(dist / MAX_RADIUS, 1);
+      col[i * 3] = 0.7 + 0.3 * (1 - distRatio);       // R
+      col[i * 3 + 1] = 0.75 + 0.25 * (1 - distRatio);  // G
+      col[i * 3 + 2] = 0.85 + 0.15 * distRatio;        // B (more blue far)
+
+      siz[i] = baseSize * alpha;
     }
 
-    // Orbit the planet meshes
-    bodiesRef.current.forEach((b) => {
-      b.baseAngle += delta * b.speed;
-      b.mesh.position.x = Math.cos(b.baseAngle) * b.orbitRadius;
-      b.mesh.position.z = Math.sin(b.baseAngle) * b.orbitRadius;
-      b.mesh.position.y = b.yOffset + Math.sin(b.baseAngle * 0.5) * 0.3;
-    });
+    // Update buffers
+    if (pointsRef.current) {
+      const geo = pointsRef.current.geometry;
+      geo.attributes.position.needsUpdate = true;
+      geo.attributes.color.needsUpdate = true;
+      geo.attributes.size.needsUpdate = true;
+    }
 
-    // Subtle twinkle on stars
+    // Subtle global twinkle
     if (materialRef.current) {
-      twinkleRef.current += delta * 0.3;
-      materialRef.current.opacity = 0.6 + Math.sin(twinkleRef.current) * 0.08;
-    }
-
-    // Globe group slow rotation
-    if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.01;
+      materialRef.current.opacity = 0.55 + Math.sin(performance.now() * 0.0005) * 0.08;
     }
   });
 
+  // Create initial buffers
+  const geo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(positionsRef.current, 3));
+    g.setAttribute("color", new THREE.BufferAttribute(colorsRef.current, 3));
+    g.setAttribute("size", new THREE.BufferAttribute(sizesRef.current, 1));
+    return g;
+  }, []);
+
   return (
-    <group ref={groupRef}>
-      <points ref={starsRef} geometry={starsGeo}>
-        <pointsMaterial
-          ref={materialRef}
-          map={glowTexture}
-          size={0.3}
-          vertexColors
-          transparent
-          opacity={0.6}
-          blending={THREE.AdditiveBlending}
-          depthWrite={false}
-          sizeAttenuation={true}
-        />
-      </points>
-    </group>
+    <points ref={pointsRef} geometry={geo}>
+      <pointsMaterial
+        ref={materialRef}
+        map={glowTexture}
+        size={0.25}
+        vertexColors
+        transparent
+        opacity={0.55}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+        sizeAttenuation={true}
+      />
+    </points>
   );
 }
 
@@ -193,7 +206,7 @@ export default function ParticleBackground() {
           gl.setClearColor(0x000000, 0);
         }}
       >
-        <CelestialField />
+        <ExpandingField />
       </Canvas>
     </div>
   );
