@@ -6,9 +6,32 @@ import { DASHBOARD_STATS, COLORS } from "@/lib/constants";
 
 type EChartsType = any;
 
+interface GitHubStats {
+  publicRepos: number;
+  totalCommits: number;
+  totalStars: number;
+}
+
 export default function DataDashboard() {
   const chartRef = useRef<HTMLDivElement>(null);
   const [echartsMod, setEchartsMod] = useState<EChartsType | null>(null);
+  const [githubStats, setGithubStats] = useState<GitHubStats | null>(null);
+
+  // Fetch real-time GitHub stats from our API route
+  useEffect(() => {
+    fetch("/api/github-stats")
+      .then((res) => res.json())
+      .then((data: GitHubStats) => setGithubStats(data))
+      .catch(() => setGithubStats({ publicRepos: 0, totalCommits: 0, totalStars: 0 }));
+  }, []);
+
+  // Use live GitHub data when available, fallback to static values
+  const stats = {
+    projects: DASHBOARD_STATS.projects,
+    blogPosts: DASHBOARD_STATS.blogPosts,
+    githubCommits: githubStats?.totalCommits ?? DASHBOARD_STATS.githubCommits,
+    githubRepos: githubStats?.publicRepos ?? DASHBOARD_STATS.githubRepos,
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -56,10 +79,10 @@ export default function DataDashboard() {
             label: { fontSize: 16, fontWeight: "bold" },
           },
           data: [
-            { value: DASHBOARD_STATS.projects, name: "项目" },
-            { value: DASHBOARD_STATS.blogPosts, name: "博客文章" },
-            { value: DASHBOARD_STATS.githubCommits, name: "GitHub 提交" },
-            { value: DASHBOARD_STATS.githubRepos, name: "GitHub 仓库" },
+            { value: stats.projects, name: "项目" },
+            { value: stats.blogPosts, name: "博客文章" },
+            { value: stats.githubCommits, name: "GitHub 提交" },
+            { value: stats.githubRepos, name: "GitHub 仓库" },
           ],
         },
       ],
@@ -71,7 +94,7 @@ export default function DataDashboard() {
       window.removeEventListener("resize", handleResize);
       chart.dispose();
     };
-  }, [echartsMod]);
+  }, [echartsMod, stats]);
 
   return (
     <section id="dashboard" className="section-container">
@@ -88,13 +111,10 @@ export default function DataDashboard() {
       {/* Stat Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
         {[
-          { label: "项目", value: DASHBOARD_STATS.projects },
-          { label: "博客文章", value: DASHBOARD_STATS.blogPosts },
-          { label: "GitHub 提交", value: DASHBOARD_STATS.githubCommits },
-          {
-            label: "GitHub 仓库",
-            value: DASHBOARD_STATS.githubRepos,
-          },
+          { label: "项目", value: stats.projects },
+          { label: "博客文章", value: stats.blogPosts },
+          { label: "GitHub 提交", value: stats.githubCommits },
+          { label: "GitHub 仓库", value: stats.githubRepos },
         ].map((stat, i) => (
           <motion.div
             key={stat.label}
