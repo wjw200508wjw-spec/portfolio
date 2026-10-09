@@ -475,10 +475,6 @@ export const PRACTICE_NOTES: PracticeNote[] = [
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    "label": "成果",
-    "href": "#about"
-  },
-  {
     "label": "经历",
     "href": "#experience"
   },

@@ -12,8 +12,8 @@ export default function Hero() {
     <div className="hero-art"><HeroVisual /><div className="avatar-wrap"><Image src="/images/avatar.webp" alt="戴眼镜、穿紫色毛衣的 3D 卡通角色" width={610} height={640} priority sizes="(max-width: 700px) 94vw, (max-width: 1100px) 500px, 620px" className="hero-avatar" /></div></div>
     <div className="hero-bottom">
       <div className="hero-bio hero-enter"><span className="eyebrow">FROM IDEAS TO WORKING TOOLS</span><p>让数据流动，<br /><em>让想法成为好用的工具。</em></p><div className="hero-disciplines"><span>DATA</span><span>AI</span><span>AUTOMATION</span></div></div>
-      <div className="hero-cta hero-enter"><a href="#about" className="button button-primary">探索实际成果 <span aria-hidden="true">↗</span></a><a href={SITE.resume} download="数据工程-简历.pdf" className="resume-link">下载简历 <span className="mono">PDF · 2026.10</span><span aria-hidden="true">↓</span></a></div>
+      <div className="hero-cta hero-enter"><a href="#projects" className="button button-primary">探索实际成果 <span aria-hidden="true">↗</span></a><a href={SITE.resume} download="数据工程-简历.pdf" className="resume-link">下载简历 <span className="mono">PDF · 2026.10</span><span aria-hidden="true">↓</span></a></div>
     </div>
-    <div className="hero-foot"><span className="mono">BASED IN CHINA / BUILDING WITH DATA</span><a href="#about" className="scroll-link">向下探索 <span aria-hidden="true">↓</span></a><span className="mono">PORTFOLIO © 2026</span></div>
+    <div className="hero-foot"><span className="mono">BASED IN CHINA / BUILDING WITH DATA</span><a href="#experience" className="scroll-link">向下探索 <span aria-hidden="true">↓</span></a><span className="mono">PORTFOLIO © 2026</span></div>
   </section>;
 }
