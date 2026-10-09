@@ -1,8 +1,6 @@
 import type { Project, Experience, SkillGroup, PracticeNote, NavItem } from "./types";
 
 export const SITE = {
-  "name": "王佳伟",
-  "nameEn": "Wang Jiawei",
   "title": "Data Engineer & AI Developer",
   "tagline": "让数据流动，让业务更轻松。",
   "email": "2924539178@qq.com",
@@ -17,7 +15,7 @@ export const SITE = {
     "major": "数据科学与大数据技术",
     "period": "2023 — 2027"
   },
-  "aboutIntro": "我是王佳伟，数据科学与大数据技术专业本科生。围绕医疗与航空维修场景，参与数据集成、数据治理与湖仓方案建设，也用 Python 和 AI 辅助开发，把重复的业务工作变成好用的工具。"
+
 };
 
 export const EXPERIENCES: Experience[] = [
@@ -52,20 +50,22 @@ export const EXPERIENCES: Experience[] = [
 export const PROJECTS: Project[] = [
   {
     "id": "quote-automation",
-    "title": "AI 辅助报价自动化",
+    "title": "XIESSA 客服一体化工具",
     "category": "业务自动化",
-    "subtitle": "从两小时，到半小时。",
-    "overview": "把多客户报价规则、价格匹配与照片整理，收进一套 Python 自动化流程。",
-    "description": "结合航空维修业务规则，使用 AI 辅助开发将多客户报价规则转化为 Python 程序。完成数据筛选与价格匹配，输出多 Sheet 报价表，并关联报废件照片，让重复的数据准备工作更高效。",
+    "subtitle": "让重复业务，在一个工作台里完成。",
+    "overview": "把报价、照片匹配、接收检查、历史记录、数据库与报价逻辑整合进 Windows 桌面工具。",
+    "description": "围绕航空维修客服的日常任务，开发 Python 桌面工具。按客户与机型生成报价，匹配报废件照片，批量整理接收检查周报；支持客户数据库维护、业务报价规则配置，以及生成文件的历史留存和重新下载。结合 AI 辅助开发，将业务规则转化为可以直接使用的工作流程。",
     "tools": [
       "Python",
+      "Tkinter",
       "Excel",
       "AI 辅助开发"
     ],
     "outcomes": [
-      "单次报价时间由约 2 小时缩短至约半小时。",
-      "统一数据筛选、价格匹配与多 Sheet 文件生成流程。",
-      "自动匹配报废件照片，减少人工文件整理。"
+      "整合报价、报废件照片、接收检查、历史记录、数据库和报价逻辑六类业务功能。",
+      "按客户和机型匹配报价规则，生成多 Sheet 报价文件。",
+      "支持批量生成接收检查周报与照片匹配。",
+      "维护数据库前自动备份，并保留生成文件的本地历史。"
     ],
     "flowSteps": [
       {
@@ -89,7 +89,7 @@ export const PROJECTS: Project[] = [
         "type": "transform"
       }
     ],
-    "metric": "约 75% 时间节省",
+    "metric": "六类业务功能，一套工作台",
     "period": "2026.06 — 2026.10",
     "role": "业务规则转化 / 工具开发",
     "context": "航空维修实践"
@@ -475,7 +475,7 @@ export const PRACTICE_NOTES: PracticeNote[] = [
 
 export const NAV_ITEMS: NavItem[] = [
   {
-    "label": "关于",
+    "label": "成果",
     "href": "#about"
   },
   {

@@ -1,6 +1,10 @@
 import type { Project } from "@/lib/types";
+import Image from "next/image";
+import { SHOWCASE } from "@/lib/showcase";
 export default function ProjectPreview({ project, compact = false }: { project: Project; compact?: boolean }) {
   const id = project.id;
+  const actual = SHOWCASE.find(work => work.id === id);
+  if (actual) return <div className={`project-preview actual-preview ${compact ? "compact" : ""}`} aria-hidden="true"><div className="preview-top"><span className="preview-dots">● ● ●</span><span>{actual.label}</span><span>↗</span></div><Image src={actual.image} alt="" width={actual.width} height={actual.height} sizes={compact ? "310px" : "(max-width: 700px) 92vw, 52vw"} /><span className="actual-caption">实际界面{id === "interactive-analysis" ? " · 示例数据" : ""}</span></div>;
   return <div className={`project-preview preview-${id} ${compact ? "compact" : ""}`} aria-hidden="true" data-ambient>
     <div className="preview-top"><span className="preview-dots">● ● ●</span><span>{id === "quote-automation" ? "QUOTE WORKSPACE" : id === "ocr-platform" ? "DOCUMENT INTELLIGENCE" : id === "factory-visualization" ? "FACTORY PROJECTS" : id === "interactive-analysis" ? "DATA EXPLORER" : id === "hermes-agent" ? "AGENT COLLABORATION" : "DATA WORKSPACE"}</span><span>↗</span></div>
     {id === "quote-automation" ? <div className="quote-preview"><div className="preview-caption">LESS REPETITION.<br /><strong>MORE POSSIBILITY.</strong></div><div className="quote-timing"><span>2h</span><span>→</span><strong>30m</strong></div><div className="preview-table">{["规则筛选","价格匹配","报价生成","照片关联"].map((label,i) => <div key={label}><span>0{i+1}</span><span>{label}</span><span className="check">✓</span></div>)}</div></div>

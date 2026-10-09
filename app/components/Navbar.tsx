@@ -26,12 +26,12 @@ export default function Navbar() {
   }, [open]);
   return <header className="site-header">
     <nav className="nav-inner" aria-label="主导航">
-      <a href="#hero" className="brand" aria-label={`${SITE.name}，回到首页`}><span className="brand-symbol">w<span>j</span>w.</span><span className="brand-caption">DATA & AI<br />WANG JIAWEI</span></a>
+      <a href="#hero" className="brand" aria-label="Data & AI，回到首页"><span className="brand-symbol">d<span>a</span>ta.</span><span className="brand-caption">DATA & AI<br />PORTFOLIO</span></a>
       <div className="desktop-nav">{NAV_ITEMS.map(item => <a key={item.href} href={item.href} aria-current={active === item.href.slice(1) ? "location" : undefined}>{item.label}</a>)}</div>
       <div className="nav-actions"><MotionToggle /><a className="nav-contact" href="#contact">聊聊合作 <span aria-hidden="true">↗</span></a>
         <button ref={trigger} className="menu-toggle" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "关闭菜单" : "打开菜单"}><span>{open ? "关闭" : "菜单"}</span><span aria-hidden="true">{open ? "×" : "+"}</span></button>
       </div>
     </nav>
-    <div ref={menu} id="mobile-menu" className="mobile-menu" hidden={!open}>{NAV_ITEMS.map(item => <a key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.label}<span aria-hidden="true">↗</span></a>)}<a href={SITE.resume} download="王佳伟-数据.pdf" onClick={() => setOpen(false)}>下载新简历 <span aria-hidden="true">↓</span></a></div>
+    <div ref={menu} id="mobile-menu" className="mobile-menu" hidden={!open}>{NAV_ITEMS.map(item => <a key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.label}<span aria-hidden="true">↗</span></a>)}<a href={SITE.resume} download="数据工程-简历.pdf" onClick={() => setOpen(false)}>下载新简历 <span aria-hidden="true">↓</span></a></div>
   </header>;
 }
