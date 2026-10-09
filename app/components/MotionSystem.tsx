@@ -1,5 +1,6 @@
 "use client";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import Icon from "./Icon";
 
 const MotionContext = createContext({ paused: false, reduced: true, toggle: () => {} });
 export const useMotionSettings = () => useContext(MotionContext);
@@ -71,6 +72,6 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
 export function MotionToggle() {
   const { paused, toggle } = useMotionSettings();
   return <button className="motion-toggle" onClick={toggle} aria-pressed={paused} aria-label={paused ? "播放装饰动画" : "暂停装饰动画"}>
-    <span aria-hidden="true">{paused ? "▶" : "Ⅱ"}</span><span className="motion-label">{paused ? "播放动效" : "暂停动效"}</span>
+    <Icon name={paused ? "play" : "pause"}/><span className="motion-label">{paused ? "播放动效" : "暂停动效"}</span>
   </button>;
 }
