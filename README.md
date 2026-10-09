@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wang Jiawei · Data & AI Portfolio
 
-## Getting Started
+Personal portfolio: https://www.vpymhk.cn
 
-First, run the development server:
+An animated, responsive portfolio covering data engineering, data governance, multimodal document workflows and business automation. Content follows the October 2026 resume; the Hermes-Agent entry is retained as a personal exploration from the previous site.
 
-```bash
+## Run locally
+
+```sh
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Check and build
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm run lint
+npm run build
+npm run start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16.4, React 19, TypeScript and Tailwind 4. The hero uses React Three Fiber and a procedural Three.js environment; no external textures or fonts are required. Most content is rendered on the server.
 
-## Learn More
+## Editing content
 
-To learn more about Next.js, take a look at the following resources:
+See `EXTENDING.md`. Personal information, experience, projects, skill groups and practice notes live in `lib/constants.ts`. Replace `public/resume.pdf` and update the resume version in `SITE.resume` when uploading a new resume.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Motion and accessibility
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The navigation includes an animation pause button. The site respects `prefers-reduced-motion`, provides keyboard focus states and a skip link, and uses native details elements for expandable content. The hero renderer pauses offscreen and when the browser tab is hidden. Desktop project cards stack on scroll; mobile and reduced-motion layouts use normal document flow.
 
-## Deploy on Vercel
+## GitHub statistics
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+`/api/github-stats` reads public repositories and their default-branch commit counts, with one-hour caching, pagination, timeouts and an explicit unavailable state. An optional server-only `GITHUB_TOKEN` can increase the API quota. Never put it in a `NEXT_PUBLIC_` environment variable or commit it.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Visual assets
+
+The 3D-style avatar was generated from the supplied resume portrait with the built-in image generation tool. Project preview graphics are illustrative diagrams, not screenshots of internal business systems. UI and motion were informed by `emilkowalski/skills` (`emil-design-eng`, `animate`, `mobile-native`) and the user's video reference.
+
+## Deployment
+
+The existing Vercel integration builds the `master` branch. Publish only after lint, a production build, responsive interaction checks and resume verification pass. Verify Vercel status and the custom domain after publication.

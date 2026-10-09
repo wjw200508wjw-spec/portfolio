@@ -1,145 +1,37 @@
 "use client";
-
-import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
+import { MotionToggle } from "./MotionSystem";
 
 export default function Navbar() {
-  const [visible, setVisible] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
-  const [mobileOpen, setMobileOpen] = useState(false);
-
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState("");
+  const menu = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > window.innerHeight * 0.6);
-
-      const sections = NAV_ITEMS.map((item) => item.href.slice(1));
-      for (const id of sections.reverse()) {
-        const el = document.getElementById(id);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 120) {
-            setActiveSection(id);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => { if (entry.isIntersecting) setActive(entry.target.id); });
+    }, { rootMargin: "-15% 0px -65% 0px" });
+    NAV_ITEMS.forEach(item => { const section = document.querySelector(item.href); if (section) observer.observe(section); });
+    const close = () => { if (window.innerWidth >= 1000) setOpen(false); };
+    window.addEventListener("resize", close);
+    return () => { observer.disconnect(); window.removeEventListener("resize", close); };
   }, []);
-
-  // Lock body scroll when mobile menu is open
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
-  }, [mobileOpen]);
-
-  // Close mobile menu on window resize to desktop
-  useEffect(() => {
-    const onResize = () => { if (window.innerWidth >= 768) setMobileOpen(false); };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const scrollTo = useCallback((href: string) => {
-    setMobileOpen(false);
-    // Small delay so the menu close animation starts before scroll
-    setTimeout(() => {
-      const el = document.getElementById(href.slice(1));
-      el?.scrollIntoView({ behavior: "smooth" });
-    }, 150);
-  }, []);
-
-  const navItems = NAV_ITEMS.map((item) => (
-    <button
-      key={item.href}
-      onClick={() => scrollTo(item.href)}
-      className={`px-5 py-2.5 text-[0.9rem] rounded-full transition-colors ${
-        activeSection === item.href.slice(1)
-          ? "text-text-bright bg-bg-elevated"
-          : "text-text-secondary hover:text-text-primary"
-      }`}
-    >
-      {item.label}
-    </button>
-  ));
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.nav
-          initial={{ y: -80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -80, opacity: 0 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
-          className="glass fixed top-0 left-0 right-0 z-50"
-        >
-          <div className="max-w-[1280px] mx-auto px-4 md:px-8 h-16 md:h-18 flex items-center justify-between">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="text-text-primary font-bold text-lg md:text-xl tracking-tight hover:text-text-bright transition-colors shrink-0"
-            >
-              {SITE.nameEn}
-            </button>
-
-            {/* Desktop nav */}
-            <div className="hidden md:flex items-center gap-1.5">
-              {navItems}
-            </div>
-
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMobileOpen((v) => !v)}
-              aria-label={mobileOpen ? "关闭菜单" : "打开菜单"}
-              className="md:hidden relative z-50 w-10 h-10 flex flex-col items-center justify-center gap-1.5"
-            >
-              <motion.span
-                animate={mobileOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
-                className="block w-5 h-[2px] bg-text-primary rounded-full"
-              />
-              <motion.span
-                animate={mobileOpen ? { opacity: 0 } : { opacity: 1 }}
-                className="block w-5 h-[2px] bg-text-primary rounded-full"
-              />
-              <motion.span
-                animate={mobileOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
-                className="block w-5 h-[2px] bg-text-primary rounded-full"
-              />
-            </button>
-          </div>
-
-          {/* Mobile dropdown */}
-          <AnimatePresence>
-            {mobileOpen && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
-                className="md:hidden overflow-hidden glass border-t border-white/5"
-              >
-                <div className="px-4 py-3 flex flex-col gap-1">
-                  {NAV_ITEMS.map((item) => (
-                    <button
-                      key={item.href}
-                      onClick={() => scrollTo(item.href)}
-                      className={`w-full text-left px-4 py-3 text-[0.95rem] rounded-xl transition-colors ${
-                        activeSection === item.href.slice(1)
-                          ? "text-text-bright bg-bg-elevated"
-                          : "text-text-secondary hover:text-text-primary hover:bg-bg-elevated/50"
-                      }`}
-                    >
-                      {item.label}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.nav>
-      )}
-    </AnimatePresence>
-  );
+    if (!open) return;
+    const escape = (event: KeyboardEvent) => { if (event.key === "Escape") { setOpen(false); trigger.current?.focus(); } };
+    const outside = (event: PointerEvent) => { if (!menu.current?.contains(event.target as Node) && !trigger.current?.contains(event.target as Node)) setOpen(false); };
+    document.addEventListener("keydown", escape); document.addEventListener("pointerdown", outside);
+    return () => { document.removeEventListener("keydown", escape); document.removeEventListener("pointerdown", outside); };
+  }, [open]);
+  return <header className="site-header">
+    <nav className="nav-inner" aria-label="主导航">
+      <a href="#hero" className="brand" aria-label={`${SITE.name}，回到首页`}><span className="brand-symbol">w<span>j</span>w.</span><span className="brand-caption">DATA & AI<br />WANG JIAWEI</span></a>
+      <div className="desktop-nav">{NAV_ITEMS.map(item => <a key={item.href} href={item.href} aria-current={active === item.href.slice(1) ? "location" : undefined}>{item.label}</a>)}</div>
+      <div className="nav-actions"><MotionToggle /><a className="nav-contact" href="#contact">聊聊合作 <span aria-hidden="true">↗</span></a>
+        <button ref={trigger} className="menu-toggle" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "关闭菜单" : "打开菜单"}><span>{open ? "关闭" : "菜单"}</span><span aria-hidden="true">{open ? "×" : "+"}</span></button>
+      </div>
+    </nav>
+    <div ref={menu} id="mobile-menu" className="mobile-menu" hidden={!open}>{NAV_ITEMS.map(item => <a key={item.href} href={item.href} onClick={() => setOpen(false)}>{item.label}<span aria-hidden="true">↗</span></a>)}<a href={SITE.resume} download="王佳伟-数据.pdf" onClick={() => setOpen(false)}>下载新简历 <span aria-hidden="true">↓</span></a></div>
+  </header>;
 }

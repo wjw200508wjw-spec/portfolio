@@ -1,37 +1,12 @@
 import Navbar from "./components/Navbar";
-import SideIndicator from "./components/SideIndicator";
 import Hero from "./components/Hero";
+import WorkWall from "./components/WorkWall";
 import About from "./components/About";
+import Experience from "./components/Experience";
 import Projects from "./components/Projects";
-
+import Skills from "./components/Skills";
 import Blog from "./components/Blog";
 import DataDashboard from "./components/DataDashboard";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
-
-// ============================================================
-// EXTENSIBILITY: To add a new section:
-// 1. Import the component above
-// 2. Add it inside <main> below
-// 3. Add its id to SECTION_IDS in lib/constants.ts
-// ============================================================
-
-export default function Home() {
-  return (
-    <>
-      <Navbar />
-      <SideIndicator />
-      <main>
-        <Hero />
-        <About />
-        <Projects />
-
-        <Blog />
-        <DataDashboard />
-        <Contact />
-        {/* EXTENSION POINT: Add new sections here */}
-      </main>
-      <Footer />
-    </>
-  );
-}
+export default function Home() { return <><Navbar /><main id="main-content"><Hero /><WorkWall /><About /><Experience /><Projects /><Skills /><Blog /><DataDashboard /><Contact /></main><Footer /></>; }

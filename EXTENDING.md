@@ -1,88 +1,32 @@
-# Extending This Site
+# Extending the portfolio
 
-All content is data-driven. You only need to edit `lib/constants.ts` for most changes.
+## Content
 
-## Quick Reference
+Edit `lib/constants.ts`:
 
-| Want to... | Edit this file | What to do |
-|------------|---------------|------------|
-| Add a project | `lib/constants.ts` | Push to `PROJECTS` array |
-| Add a blog post | `lib/constants.ts` | Push to `BLOG_POSTS` array |
-| Add a skill | `lib/constants.ts` | Push to `SKILLS` array |
-| Add an AI tool | `lib/constants.ts` | Push to `AGENT_TOOLS` array |
-| Add a nav item | `lib/constants.ts` | Push to `NAV_ITEMS` array |
-| Change personal info | `lib/constants.ts` | Edit `SITE` object |
-| Add a new section | Multiple files | See below |
+| Content | Export |
+| --- | --- |
+| Personal details, resume URL, education | `SITE` |
+| Work history | `EXPERIENCES` |
+| Project cases and illustrative workflows | `PROJECTS` |
+| Skills grouped by practical use | `SKILL_GROUPS` |
+| Expandable practice notes | `PRACTICE_NOTES` |
+| Navigation | `NAV_ITEMS` |
 
-## Adding a New Section (4 Steps)
+Interfaces are defined in `lib/types.ts`. Keep project IDs stable because the work wall links to them. Adding a project automatically adds it to the gallery and category filters. Update the heading count and about facts if the total changes. Do not invent work results, technology choices or metrics.
 
-### 1. Register the section ID
+`ProjectPreview.tsx` provides project-specific schematic graphics. New projects use the generic pipeline preview unless another view is added. These illustrations must remain labelled as schematics.
 
-In `lib/constants.ts`, add to `SECTION_IDS`:
-```ts
-export const SECTION_IDS = [
-  "hero",
-  "about",
-  // ...existing...
-  "my-new-section",  // ADD HERE
-  "contact",
-];
-```
+## Resume
 
-### 2. Create the component
+Replace `public/resume.pdf`, update the version query in `SITE.resume`, and verify the served file against the original bytes. All resume download links use `SITE.resume`.
 
-Create `app/components/MyNewSection.tsx`:
-```tsx
-"use client";
+## Page modules
 
-import { motion } from "framer-motion";
+`app/page.tsx` defines the order. Content modules are server components; client components handle the navigation, project filters, statistics and motion settings. Add an `id` to new sections and register their navigation link.
 
-export default function MyNewSection() {
-  return (
-    <section id="my-new-section" className="section-container">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
-        <h2 className="section-title">My New Section</h2>
-        <p className="section-subtitle">Section description</p>
-      </motion.div>
-      {/* Your content here */}
-    </section>
-  );
-}
-```
+## Motion
 
-### 3. Add to page.tsx
+The shared easing tokens in `globals.css` follow Emil Kowalski's design engineering guidance. Use transform and opacity, 100–160ms press feedback and 200ms UI changes. Scroll reveals run once. Gate hover styles by `(hover: hover) and (pointer: fine)`. Keep decorative animations pausable and support reduced motion. Add `data-ambient` to repeating animation containers so offscreen decoration pauses. Add `data-reveal` to an element to opt into the one-time scroll reveal.
 
-In `app/page.tsx`, import and place inside `<main>`:
-```tsx
-import MyNewSection from "./components/MyNewSection";
-// ...
-<Contact />
-<MyNewSection />  {/* ADD HERE */}
-```
-
-### 4. Add navigation link (optional)
-
-In `lib/constants.ts`, add to `NAV_ITEMS`:
-```ts
-{ label: "New", href: "#my-new-section" }
-```
-
-## Design Patterns
-
-- **Section wrapper**: Every section must have `id="..."` and `className="section-container"`
-- **Scroll animation**: Wrap in `<motion.div initial={{opacity:0,y:30}} whileInView={{opacity:1,y:0}} viewport={{once:true}}>`
-- **Hover cards**: Use `whileHover={{ y: -4 }}` on interactive elements
-- **Grid layouts**: `grid md:grid-cols-3 gap-6` for 3-column card grids
-- **Colors**: Use Tailwind classes `text-text-primary`, `text-text-muted`, `bg-bg-surface`, `border-bg-elevated`
-
-## No Build Step Required
-
-Just edit, save, and refresh. Next.js HMR handles the rest.
-
-## Updating Resume
-
-Replace `public/resume.pdf` with your latest resume. The "Download Resume" button in the Hero section links there.
+Test phone-specific touch feel and safe areas on physical hardware; emulated viewport checks alone do not validate those behaviors.

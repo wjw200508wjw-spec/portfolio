@@ -1,11 +1,2 @@
 import { SITE } from "@/lib/constants";
-
-export default function Footer() {
-  return (
-    <footer className="border-t border-bg-elevated py-10 text-center">
-      <p className="text-sm text-text-secondary">
-        &copy; {new Date().getFullYear()} {SITE.name} . 使用 Next.js &amp; Three.js 构建
-      </p>
-    </footer>
-  );
-}
+export default function Footer() { return <footer className="site-footer"><span>© 2026 {SITE.name} / {SITE.nameEn}</span><span>BUILT WITH CURIOSITY & CODE.</span><a href="#hero">回到顶部 ↑</a></footer>; }

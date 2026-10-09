@@ -1,29 +1,6 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { PROJECTS } from "@/lib/constants";
 import ProjectCard from "./ProjectCard";
-
+import ProjectCollection from "./ProjectCollection";
 export default function Projects() {
-  return (
-    <section id="projects" className="section-container">
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-      >
-        <h2 className="section-title">项目</h2>
-        <p className="section-subtitle">
-          数据工程 &amp; AI Agent 开发核心项目
-        </p>
-      </motion.div>
-
-      <div className="space-y-6">
-        {PROJECTS.map((project, i) => (
-          <ProjectCard key={project.id} project={project} index={i} />
-        ))}
-      </div>
-    </section>
-  );
+  return <section id="projects" className="section-container projects-section"><div className="section-kicker" data-reveal><span>03 / SELECTED WORK</span><span>从问题出发，把方案落地。</span></div><h2 className="display-title projects-title" data-reveal>SELECTED<br /><em>WORK.</em><span className="title-count">(07)</span></h2><p className="projects-intro" data-reveal>数据平台、AI 工作流与业务工具。<br />每个作品，都从一个具体的问题开始。</p><ProjectCollection entries={PROJECTS.map((project,index) => ({id:project.id,category:project.category,content:<ProjectCard key={project.id} project={project} index={index} />}))} /></section>;
 }

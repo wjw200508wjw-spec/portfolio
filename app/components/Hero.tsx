@@ -1,78 +1,18 @@
-"use client";
-
-import { useRef, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import Image from "next/image";
 import { SITE } from "@/lib/constants";
-import HeroCanvas from "./HeroCanvas";
-import gsap from "gsap";
+import HeroVisual from "./HeroVisual";
 
 export default function Hero() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const nameRef = useRef<HTMLParagraphElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
-  const ctasRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-  const particlesOpacity = useTransform(scrollYProgress, [0, 0.7], [0.5, 0]);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
-
-  useEffect(() => {
-    const tl = gsap.timeline();
-    tl.fromTo(nameRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, 0.3);
-    tl.fromTo(taglineRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, 0.7);
-    tl.fromTo(ctasRef.current, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 1.2, ease: "power3.out" }, 1.1);
-    tl.fromTo(scrollRef.current, { opacity: 0 }, { opacity: 1, duration: 0.6 }, 2.5);
-    return () => { tl.kill(); };
-  }, []);
-
-  return (
-    <section
-      id="hero"
-      ref={containerRef}
-      className="relative h-screen w-full flex items-center justify-center overflow-hidden"
-    >
-      {/* Particle canvas behind everything */}
-      <motion.div style={{ opacity: particlesOpacity }} className="absolute inset-0">
-        <HeroCanvas scrollYProgress={scrollYProgress} />
-      </motion.div>
-
-      {/* Content: text + buttons */}
-      <motion.div ref={contentRef} className="relative z-10 text-center px-6" style={{ opacity: contentOpacity }}>
-        <h1 className="text-[clamp(5rem,18vw,18rem)] font-extrabold leading-[0.85] select-none tracking-[-0.03em]" style={{ color: "#c8cbd4" }}>
-          DATA
-        </h1>
-
-        <p ref={nameRef} className="text-3xl md:text-4xl font-semibold text-white mt-6">
-          {SITE.name}
-        </p>
-
-        <p ref={taglineRef} className="text-base md:text-lg text-white/70 mt-3">
-          {SITE.tagline}
-        </p>
-
-        <div ref={ctasRef} className="flex items-center justify-center gap-4 mt-8">
-          <button onClick={() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" })}
-            className="px-8 py-3.5 bg-white text-black rounded-full text-sm md:text-base font-semibold hover:bg-gray-200 transition-colors">
-            查看项目
-          </button>
-          <a href="/resume.pdf" download
-            className="px-8 py-3.5 border border-white/30 text-white/80 rounded-full text-sm md:text-base font-medium hover:border-white/60 hover:text-white transition-colors">
-            下载简历
-          </a>
-        </div>
-      </motion.div>
-
-      {/* Scroll indicator */}
-      <div ref={scrollRef} className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10">
-        <span className="text-xs text-white/50 tracking-[0.3em]">向下滚动</span>
-        <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-          className="w-5 h-5 border-r-2 border-b-2 border-white/50 rotate-45" />
-      </div>
-    </section>
-  );
+  return <section id="hero" className="hero" data-ambient>
+    <div className="hero-aurora" aria-hidden="true" />
+    <div className="hero-heading hero-enter"><span className="eyebrow"><span className="status-dot" /> DATA ENGINEERING · AI APPLICATIONS</span>
+      <h1><span>MAKE DATA</span><span className="outlined-word">MAKE <i>IMPACT.</i></span></h1>
+    </div>
+    <div className="hero-art"><HeroVisual /><div className="avatar-wrap"><Image src="/images/avatar.webp" alt="王佳伟的 3D 卡通形象" width={610} height={640} priority sizes="(max-width: 700px) 78vw, 430px" className="hero-avatar" /></div></div>
+    <div className="hero-bottom">
+      <div className="hero-bio hero-enter"><span className="eyebrow">HELLO, I’M</span><h2>{SITE.name}<span> / {SITE.nameEn}</span></h2><p>把分散的数据连接起来，<br />把复杂的业务变成好用的工具。</p></div>
+      <div className="hero-cta hero-enter"><a href="#projects" className="button button-primary">探索我的作品 <span aria-hidden="true">↗</span></a><a href={SITE.resume} download="王佳伟-数据.pdf" className="resume-link">下载简历 <span className="mono">PDF · 2026.10</span><span aria-hidden="true">↓</span></a></div>
+    </div>
+    <div className="hero-foot"><span className="mono">BASED IN CHINA / BUILDING WITH DATA</span><a href="#about" className="scroll-link">向下探索 <span aria-hidden="true">↓</span></a><span className="mono">PORTFOLIO © 2026</span></div>
+  </section>;
 }

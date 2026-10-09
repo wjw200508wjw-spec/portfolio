@@ -1,87 +1,44 @@
 import { NextResponse } from "next/server";
-
-const GITHUB_USER = "wjw200508wjw-spec";
-const CACHE_SECONDS = 3600; // 1 hour
-
-interface GitHubStats {
-  publicRepos: number;
-  totalCommits: number;
-  totalStars: number;
+import type { GitHubStats } from "@/lib/types";
+const USER = "wjw200508wjw-spec";
+const headers: Record<string,string> = { Accept: "application/vnd.github+json" };
+if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+async function github(path: string) {
+  return fetch(`https://api.github.com/${path}`, { headers, next: { revalidate: 3600 }, signal: AbortSignal.timeout(8000) });
 }
-
-export async function GET(): Promise<NextResponse<GitHubStats>> {
+type Repo = { name: string; stargazers_count: number; size: number };
+async function commits(repo: Repo): Promise<number | null> {
   try {
-    // 1. Fetch user profile → public_repos
-    const userRes = await fetch(`https://api.github.com/users/${GITHUB_USER}`, {
-      headers: { Accept: "application/vnd.github.v3+json" },
-      next: { revalidate: CACHE_SECONDS },
-    });
-    if (!userRes.ok) throw new Error(`User API returned ${userRes.status}`);
-    const user = await userRes.json();
-
-    // 2. Fetch all public repos
-    const reposRes = await fetch(
-      `https://api.github.com/users/${GITHUB_USER}/repos?per_page=100&type=owner`,
-      {
-        headers: { Accept: "application/vnd.github.v3+json" },
-        next: { revalidate: CACHE_SECONDS },
-      }
-    );
-    if (!reposRes.ok) throw new Error(`Repos API returned ${reposRes.status}`);
-    const repos = await reposRes.json();
-
-    if (!Array.isArray(repos)) {
-      return NextResponse.json({
-        publicRepos: user.public_repos || 0,
-        totalCommits: 0,
-        totalStars: 0,
-      });
+    const res = await github(`repos/${USER}/${encodeURIComponent(repo.name)}/commits?per_page=1`);
+    if (res.status === 409 && repo.size === 0) return 0;
+    if (!res.ok) return null;
+    const link = res.headers.get("Link");
+    const last = link?.match(/[?&]page=(\d+)>; rel="last"/);
+    if (last) return Number(last[1]);
+    const list: unknown = await res.json();
+    return Array.isArray(list) ? list.length : null;
+  } catch { return null; }
+}
+export async function GET() {
+  try {
+    const profileRes = await github(`users/${USER}`);
+    if (!profileRes.ok) throw new Error("GitHub profile unavailable");
+    const profile = await profileRes.json();
+    const repos: Repo[] = [];
+    const pages = Math.max(1, Math.ceil(profile.public_repos / 100));
+    for (let page = 1; page <= pages; page++) {
+      const res = await github(`users/${USER}/repos?per_page=100&type=owner&page=${page}`);
+      if (!res.ok) throw new Error("GitHub repositories unavailable");
+      const list: unknown = await res.json();
+      if (!Array.isArray(list)) throw new Error("Invalid GitHub response");
+      repos.push(...list);
     }
-
-    // 3. Sum stars
-    const totalStars = repos.reduce(
-      (sum: number, r: { stargazers_count?: number }) =>
-        sum + (r.stargazers_count || 0),
-      0
-    );
-
-    // 4. Count total commits across all repos (via Link header pagination)
-    const commitCounts = await Promise.all(
-      repos.map(
-        async (repo: { name: string }): Promise<number> => {
-          try {
-            const commitsRes = await fetch(
-              `https://api.github.com/repos/${GITHUB_USER}/${repo.name}/commits?per_page=1`,
-              { headers: { Accept: "application/vnd.github.v3+json" } }
-            );
-            const link = commitsRes.headers.get("Link");
-            if (link) {
-              const match = link.match(/[&?]page=(\d+)>; rel="last"/);
-              if (match) return parseInt(match[1], 10);
-            }
-            // Fallback: count returned commits (0 or 1)
-            const commits = await commitsRes.json();
-            return Array.isArray(commits) ? commits.length : 0;
-          } catch {
-            return 0;
-          }
-        }
-      )
-    );
-    const totalCommits = commitCounts.reduce((sum, c) => sum + c, 0);
-
-    return NextResponse.json({
-      publicRepos: user.public_repos || 0,
-      totalCommits,
-      totalStars,
-    });
-  } catch (error) {
-    console.error("GitHub stats fetch failed:", error);
-    // Return zeros on failure — dashboard will still render
-    return NextResponse.json({
-      publicRepos: 0,
-      totalCommits: 0,
-      totalStars: 0,
-    });
+    const counts: (number | null)[] = [];
+    for (let i=0;i<repos.length;i+=4) counts.push(...await Promise.all(repos.slice(i,i+4).map(commits)));
+    const partial = counts.some(n => n === null);
+    const stats: GitHubStats = { publicRepos: profile.public_repos, totalCommits: partial ? null : counts.reduce<number>((sum,n)=>sum+(n ?? 0),0), totalStars: repos.reduce((sum,r)=>sum+r.stargazers_count,0), fetchedAt: new Date().toISOString(), partial };
+    return NextResponse.json(stats,{headers:{"Cache-Control":"public, max-age=60, s-maxage=3600"}});
+  } catch {
+    return NextResponse.json({error:"GitHub statistics temporarily unavailable"},{status:503,headers:{"Cache-Control":"no-store"}});
   }
 }
