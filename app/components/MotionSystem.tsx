@@ -23,6 +23,7 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
     let keyboard = false;
     const onKey = (event: KeyboardEvent) => { if (["Tab","Enter"," ","Escape","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(event.key)) { keyboard = true; root.dataset.keyboard = "true"; } };
     const onPointer = () => { keyboard = false; delete root.dataset.keyboard; };
+    const onPointerMove=(event:PointerEvent)=>{if(keyboard&&event.pointerType==="mouse")onPointer();};
     const reveal = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (!entry.isIntersecting) return;
@@ -97,6 +98,7 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
     root.addEventListener("click",onDisclosureClick);
     visibility(); document.addEventListener("visibilitychange", visibility);
     document.addEventListener("keydown", onKey); document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("pointermove",onPointerMove,{passive:true});
     return () => {
       reveal.disconnect(); ambience.disconnect(); animations.forEach(a => a.cancel());
       root.removeEventListener("toggle", onToggle, true);
@@ -104,6 +106,7 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
       disclosures.forEach(({animation,desired},details)=>{animation.cancel();resetDisclosure(details,desired);});disclosures.clear();
       document.removeEventListener("visibilitychange", visibility);
       document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("pointermove",onPointerMove);
     };
   }, [paused, reduced]);
   return <MotionContext.Provider value={{ paused, reduced, toggle: () => setPaused(v => !v) }}>
