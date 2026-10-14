@@ -547,3 +547,18 @@ details[data-closing=true]>summary .details-icon { transform:rotate(0); }
 @media(hover:hover) and (pointer:fine) { .back-to-top:hover { background:#3a2450; } }
 @media(max-width:700px) { .back-to-top { width:46px; height:46px; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); }.project-filters .selection-indicator { height:46px; }.contact-star { right:12px; } }
 @media(prefers-reduced-motion:reduce) { .back-to-top { transform:none; }.selection-indicator { transition:none; } }
+
+/* Short feedback on actions; first-view motion on promotional cards. */
+.button .ui-icon,.resume-link .ui-icon,.preview-open-control .ui-icon { transition:transform 160ms var(--ease-out); }
+.button-primary:active .ui-icon { transform:translate(2px,-2px); }.resume-link:active .ui-icon { transform:translateY(2px); }
+.preview-interactive { min-width:0; position:relative; align-self:start; }
+.preview-motion-surface { transform-origin:center; transition:transform 160ms var(--ease-out); }
+.preview-open-control { position:absolute; inset:0; width:100%; height:100%; padding:0; border-radius:16px; text-align:left; background:transparent; }
+.preview-open-control:active { transform:none; }
+.preview-open-control>span { position:absolute; bottom:15px; left:16px; display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:20px; border:1px solid #766087; background:#21172deb; color:#ddd0ef; font-size:10px; }
+.preview-open-control .ui-icon { width:15px; height:15px; }
+.preview-interactive:has(.preview-open-control:active) .preview-motion-surface { transform:scale(.99)!important; }
+.preview-interactive[data-preview-still=true] .preview-motion-surface { transform:none!important; transition:none; }
+[data-motion-paused=true] .button .ui-icon,[data-motion-paused=true] .resume-link .ui-icon,[data-motion-paused=true] .preview-open-control .ui-icon { transform:none!important; transition:none; }
+@media(hover:hover) and (pointer:fine) { .button-primary:hover .ui-icon { transform:translate(3px,-3px); }.resume-link:hover .ui-icon { transform:translateY(2px); }.preview-open-control:hover .ui-icon { transform:translate(2px,-2px); } }
+@media(prefers-reduced-motion:reduce) { .preview-motion-surface,.button .ui-icon,.resume-link .ui-icon,.preview-open-control .ui-icon { transform:none!important; transition:none; } }

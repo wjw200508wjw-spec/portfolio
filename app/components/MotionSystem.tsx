@@ -37,8 +37,10 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
               ? [{transform:"translateY(105%)",opacity:0},{transform:"translateY(0)",opacity:1}]
               : element.dataset.reveal==="fade"
                 ? [{opacity:0},{opacity:1}]
+                : element.dataset.reveal==="card"
+                  ? [{opacity:0,transform:"translateY(8px) scale(.98)"},{opacity:1,transform:"translateY(0) scale(1)"}]
                 : [{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"translateY(0)"}];
-            const animation=target.animate(frames,{duration:lines.length?500:400,delay:Number(element.dataset.delay||0)+index*50,easing:"cubic-bezier(0.23,1,0.32,1)",fill:"backwards"});
+            const animation=target.animate(frames,{duration:lines.length?500:element.dataset.reveal==="card"?300:400,delay:Number(element.dataset.delay||0)+index*50,easing:"cubic-bezier(0.23,1,0.32,1)",fill:"backwards"});
             animations.add(animation);animation.onfinish=()=>animations.delete(animation);
           });
         }
