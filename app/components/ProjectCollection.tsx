@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useMotionSettings } from "./MotionSystem";
+import SelectionRail from "./SelectionRail";
 export default function ProjectCollection({ entries }: { entries: { id: string; category: string; content: React.ReactNode }[] }) {
   const [category, setCategory] = useState("全部");
   const stack = useRef<HTMLDivElement>(null);
@@ -29,5 +30,5 @@ export default function ProjectCollection({ entries }: { entries: { id: string; 
     animateNext.current = false;
     return () => animation.current?.cancel();
   }, [category, paused, reduced]);
-  return <><div className="project-filters" aria-label="按项目方向筛选">{categories.map(label => <button key={label} aria-pressed={category === label} onClick={event => { animateNext.current = event.detail !== 0; setCategory(label); }}>{label}<span>{label === "全部" ? entries.length : entries.filter(p => p.category === label).length}</span></button>)}<span className="filter-count" aria-live="polite">{filtered.length} 个作品</span></div><div className="project-stack" ref={stack}>{filtered.map(entry => <div key={entry.id} className="project-slot">{entry.content}</div>)}</div></>;
+  return <><SelectionRail className="project-filters" activeSelector='button[aria-pressed="true"]'>{categories.map(label => <button key={label} aria-pressed={category === label} onClick={event => { animateNext.current = event.detail !== 0; setCategory(label); }}>{label}<span>{label === "全部" ? entries.length : entries.filter(p => p.category === label).length}</span></button>)}<span className="filter-count" aria-live="polite">{filtered.length} 个作品</span></SelectionRail><div className="project-stack" ref={stack}>{filtered.map(entry => <div key={entry.id} className="project-slot">{entry.content}</div>)}</div></>;
 }

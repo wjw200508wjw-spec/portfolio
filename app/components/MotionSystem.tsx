@@ -19,8 +19,9 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
     const root = scope.current;
     if (!root) return;
     const animations = new Set<Animation>();
+    const disclosures = new Map<HTMLDetailsElement,{animation:Animation;desired:boolean}>();
     let keyboard = false;
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Tab") { keyboard = true; root.dataset.keyboard = "true"; } };
+    const onKey = (event: KeyboardEvent) => { if (["Tab","Enter"," ","Escape","ArrowUp","ArrowDown","ArrowLeft","ArrowRight","Home","End"].includes(event.key)) { keyboard = true; root.dataset.keyboard = "true"; } };
     const onPointer = () => { keyboard = false; delete root.dataset.keyboard; };
     const reveal = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -29,12 +30,17 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
         if (element.dataset.revealed) { reveal.unobserve(element); return; }
         element.dataset.revealed = "true";
         if (!paused && !reduced && !keyboard) {
-          const animation = element.animate(
-            [{ opacity: 0, transform: "translateY(24px)" }, { opacity: 1, transform: "translateY(0)" }],
-            { duration: 600, delay: Number(element.dataset.delay || 0), easing: "cubic-bezier(0.23, 1, 0.32, 1)" }
-          );
-          animations.add(animation);
-          animation.onfinish = () => animations.delete(animation);
+          const lines=element.dataset.reveal==="title" ? element.querySelectorAll<HTMLElement>(".title-line>span") : [];
+          const targets=lines.length?Array.from(lines):[element];
+          targets.forEach((target,index)=>{
+            const frames=lines.length
+              ? [{transform:"translateY(105%)",opacity:0},{transform:"translateY(0)",opacity:1}]
+              : element.dataset.reveal==="fade"
+                ? [{opacity:0},{opacity:1}]
+                : [{opacity:0,transform:"translateY(12px)"},{opacity:1,transform:"translateY(0)"}];
+            const animation=target.animate(frames,{duration:lines.length?500:400,delay:Number(element.dataset.delay||0)+index*50,easing:"cubic-bezier(0.23,1,0.32,1)",fill:"backwards"});
+            animations.add(animation);animation.onfinish=()=>animations.delete(animation);
+          });
         }
         reveal.unobserve(element);
       });
@@ -47,19 +53,53 @@ export default function MotionSystem({ children }: { children: React.ReactNode }
     const visibility = () => { root.dataset.hidden = String(document.hidden); };
     const onToggle = (event: Event) => {
       const details = event.target as HTMLDetailsElement;
-      if (!details.open || paused || reduced || keyboard) return;
+      if (!details.open || paused || keyboard || disclosures.has(details)) return;
       const content = details.querySelector(".details-content, .note-body") as HTMLElement | null;
       if (content) {
-        const animation = content.animate([{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"translateY(0)"}],{duration:200,easing:"cubic-bezier(0.23,1,0.32,1)"});
+        const animation = content.animate(reduced?[{opacity:.7},{opacity:1}]:[{opacity:0,transform:"translateY(8px)"},{opacity:1,transform:"translateY(0)"}],{duration:reduced?125:200,easing:"cubic-bezier(0.23,1,0.32,1)"});
         animations.add(animation); animation.onfinish = () => animations.delete(animation);
       }
     };
+    const resetDisclosure=(details:HTMLDetailsElement,desired:boolean)=>{
+      details.open=desired;details.style.removeProperty("height");details.style.removeProperty("overflow");
+      delete details.dataset.closing;delete details.dataset.animating;
+    };
+    const onDisclosureClick=(event:MouseEvent)=>{
+      const summary=(event.target as Element).closest("summary");
+      const details=summary?.parentElement as HTMLDetailsElement|null;
+      if(!details||!details.matches(".project-details,.note"))return;
+      const previous=disclosures.get(details);
+      if(paused||reduced||keyboard||event.detail===0){
+        if(previous){previous.animation.cancel();resetDisclosure(details,previous.desired);disclosures.delete(details);}
+        return;
+      }
+      event.preventDefault();
+      const desired=!(previous?.desired??details.open);
+      const from=details.getBoundingClientRect().height;
+      previous?.animation.cancel();
+      details.style.removeProperty("height");details.style.removeProperty("overflow");
+      details.open=true;
+      const full=details.getBoundingClientRect().height;
+      let to=full;
+      if(!desired){details.open=false;to=details.getBoundingClientRect().height;details.open=true;}
+      details.dataset.animating="true";details.dataset.closing=String(!desired);
+      details.style.height=`${from}px`;details.style.overflow="clip";
+      const animation=details.animate([{height:`${from}px`},{height:`${to}px`}],{duration:200,easing:"cubic-bezier(0.23,1,0.32,1)",fill:"forwards"});
+      const transition={animation,desired};disclosures.set(details,transition);
+      animation.finished.then(()=>{
+        if(disclosures.get(details)!==transition)return;
+        resetDisclosure(details,desired);animation.cancel();disclosures.delete(details);
+      }).catch(()=>{});
+    };
     root.addEventListener("toggle", onToggle, true);
+    root.addEventListener("click",onDisclosureClick);
     visibility(); document.addEventListener("visibilitychange", visibility);
     document.addEventListener("keydown", onKey); document.addEventListener("pointerdown", onPointer);
     return () => {
       reveal.disconnect(); ambience.disconnect(); animations.forEach(a => a.cancel());
       root.removeEventListener("toggle", onToggle, true);
+      root.removeEventListener("click",onDisclosureClick);
+      disclosures.forEach(({animation,desired},details)=>{animation.cancel();resetDisclosure(details,desired);});disclosures.clear();
       document.removeEventListener("visibilitychange", visibility);
       document.removeEventListener("keydown", onKey); document.removeEventListener("pointerdown", onPointer);
     };

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { NAV_ITEMS, SITE } from "@/lib/constants";
 import { MotionToggle } from "./MotionSystem";
 import Icon from "./Icon";
+import SelectionRail from "./SelectionRail";
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
@@ -28,7 +29,7 @@ export default function Navbar() {
   return <header className="site-header">
     <nav className="nav-inner" aria-label="主导航">
       <a href="#hero" className="brand" aria-label="Data & AI，回到首页"><span className="brand-symbol">d<span>a</span>ta.</span><span className="brand-caption">DATA & AI<br />PORTFOLIO</span></a>
-      <div className="desktop-nav">{NAV_ITEMS.map(item => <a key={item.href} href={item.href} aria-current={active === item.href.slice(1) ? "location" : undefined}>{item.label}</a>)}</div>
+      <SelectionRail className="desktop-nav" activeSelector='a[aria-current="location"]'>{NAV_ITEMS.map(item => <a key={item.href} href={item.href} aria-current={active === item.href.slice(1) ? "location" : undefined}>{item.label}</a>)}</SelectionRail>
       <div className="nav-actions"><MotionToggle /><a className="nav-contact" href="#contact">聊聊合作 <span aria-hidden="true">↗</span></a>
         <button ref={trigger} className="menu-toggle" onClick={() => setOpen(v => !v)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? "关闭菜单" : "打开菜单"}><span>{open ? "关闭" : "菜单"}</span><Icon name={open ? "close" : "menu"}/></button>
       </div>
